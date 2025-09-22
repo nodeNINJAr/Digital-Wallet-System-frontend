@@ -12,10 +12,13 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
+import { ModeToggle } from "./mode-toggle";
+import { Link } from "react-router";
+
 
 // Navigation links array to be used in both desktop and mobile menus
   const navigation = [
-    { name: 'Home', href: '/', active:true },
+    { name: 'Home', href: '/',active:false},
     { name: 'About', href: '/about' },
     { name: 'Features', href: '/features' },
     { name: 'Pricing', href: '/pricing' },
@@ -70,11 +73,11 @@ export default function Navbar() {
                   {navigation.map((link, index) => (
                     <NavigationMenuItem key={index} className="w-full">
                       <NavigationMenuLink
-                        href={link.href}
+                        asChild
                         className="py-1.5"
                         active={link.active}
                       >
-                        {link.name}
+                         <Link to={link.href}>{link.name}</Link>
                       </NavigationMenuLink>
                     </NavigationMenuItem>
                   ))}
@@ -93,11 +96,11 @@ export default function Navbar() {
                 {navigation.map((link, index) => (
                   <NavigationMenuItem key={index}>
                     <NavigationMenuLink
+                      asChild
                       active={link.active}
-                      href={link.href}
                       className="text-muted-foreground hover:text-primary py-1.5 font-medium"
                     >
-                      {link.name}
+                      <Link to={link.href}>{link.name}</Link>
                     </NavigationMenuLink>
                   </NavigationMenuItem>
                 ))}
@@ -107,6 +110,7 @@ export default function Navbar() {
         </div>
         {/* Right side */}
         <div className="flex items-center gap-2">
+            <ModeToggle/>
           <Button asChild variant="ghost" size="sm" className="text-sm">
             <a href="#">Sign In</a>
           </Button>
