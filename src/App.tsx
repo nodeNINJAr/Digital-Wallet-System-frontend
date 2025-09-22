@@ -1,9 +1,10 @@
-import { Button } from './components/ui/button'
+import { Outlet } from 'react-router'
+import CommonLayouts from './components/layouts/CommonLayouts'
 
 export default function App() {
   return (
-    <div>
-      <Button>Shad cn Ui</Button>
-    </div>
+   <CommonLayouts>
+        <Outlet/>
+   </CommonLayouts>
   )
 }
