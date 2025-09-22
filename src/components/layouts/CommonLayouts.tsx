@@ -10,7 +10,7 @@ interface IProps{
 
 export default function CommonLayouts({children}:IProps) {
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col m-auto">
         {/* navbar */}
         <Navbar/>
         {/* main content */}
