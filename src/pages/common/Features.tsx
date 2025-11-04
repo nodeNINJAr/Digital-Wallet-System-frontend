@@ -18,11 +18,26 @@ import {
   CheckCircle,
   Star
 } from 'lucide-react'
-import { useGetFeaturesQuery } from '@/redux/features/features.faqs'
+import { useEffect, useState } from 'react'
+import { loadingHandler } from '@/lib/utils'
+import { mockFeatures } from '@/redux/features/features.faqs'
 
 const Features = () => {
-  const { data: features, isLoading } = useGetFeaturesQuery({})
+   
+// 
+const [loading, setLoading] = useState(true);
+  
+    useEffect(() => {
+      const load = async () => {
+        await loadingHandler(1500); 
+        setLoading(false);
+      };
+      load();
+    }, []);
+    
 
+
+  // 
   const iconMap = {
     'zap': Zap,
     'smartphone': Smartphone,
@@ -83,7 +98,7 @@ const Features = () => {
     { number: '24/7', label: 'Support Available' }
   ]
 
-  if (isLoading) {
+  if (loading) {
     return (
       <div className="min-h-screen pt-16">
         <div className="container mx-auto px-4 py-20">
@@ -145,7 +160,7 @@ const Features = () => {
           </motion.div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
-            {features?.map((feature, index) => {
+            {mockFeatures?.map((feature, index) => {
               const IconComponent = iconMap[feature.icon as keyof typeof iconMap] || Zap
               return (
                 <motion.div

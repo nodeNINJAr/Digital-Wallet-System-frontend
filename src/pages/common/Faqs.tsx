@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Card} from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -19,13 +19,15 @@ import {
   HelpCircle,
   ArrowRight
 } from 'lucide-react'
-import { useGetFAQsQuery } from '@/redux/features/features.faqs'
+import { mockFAQs} from '@/redux/features/features.faqs'
+import { loadingHandler } from '@/lib/utils'
 
 const Faqs = () => {
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('all')
-  const { data: faqs, isLoading } = useGetFAQsQuery({})
 
+
+  // 
   const categories = [
     { id: 'all', name: 'All Questions', icon: HelpCircle },
     { id: 'account', name: 'Account & Setup', icon: Users },
@@ -81,12 +83,23 @@ const Faqs = () => {
     }
   ]
 
-  const filteredFAQs = faqs?.filter(faq => 
+  const filteredFAQs = mockFAQs?.filter(faq => 
     faq.question.toLowerCase().includes(searchTerm.toLowerCase()) ||
     faq.answer.toLowerCase().includes(searchTerm.toLowerCase())
   )
+  
+  const [loading, setLoading] = useState(true);
 
-  if (isLoading) {
+  useEffect(() => {
+    const load = async () => {
+      await loadingHandler(1500); 
+      setLoading(false);
+    };
+    load();
+  }, []);
+  
+  //  
+  if (loading) {
     return (
       <div className="min-h-screen pt-16">
         <div className="container mx-auto px-4 py-20">
@@ -96,6 +109,8 @@ const Faqs = () => {
     )
   }
 
+
+  // 
   return (
     <div className="min-h-screen pt-16">
       {/* Hero Section */}

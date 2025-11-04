@@ -1,27 +1,28 @@
-import { baseApi } from "../baseApi";
+// import { baseApi } from "../baseApi";
 
 
 
-export const feaFaqs = baseApi.injectEndpoints({
-    endpoints:(builder)=>({
-        // Placeholder for future endpoints
-    getFeatures: builder.query({
-      query: () => 'features',
-       method: "GET",
-      // Mock data for now
-      queryFn: () => ({ data: mockFeatures }),
-    }),
-    getFAQs: builder.query({
-      query: () => 'faqs',
-       method: "GET",
-      queryFn: () => ({ data: mockFAQs }),
-    }),
-    })
-})
+// export const feaFaqs = baseApi.injectEndpoints({
+//     endpoints:(builder)=>({
+//         // Placeholder for future endpoints
+//     getFeatures: builder.query({
+//       query: () => 'features',
+//        method: "GET",
+//       // Mock data for now
+//       queryFn: () => ({ data: mockFeatures }),
+//     }),
+//     getFAQs: builder.query({
+//       query: () => 'faqs',
+//        method: "GET",
+//       queryFn: () => ({ data: mockFAQs }),
+//     }),
+//     })
+// })
+
 
 
 // Mock data
-const mockFeatures = [
+export const mockFeatures = [
   {
     id: 1,
     title: 'Instant Transfers',
@@ -60,7 +61,7 @@ const mockFeatures = [
   },
 ]
 
-const mockFAQs = [
+export const mockFAQs = [
   {
     id: 1,
     question: 'How do I create a PayEase account?',
@@ -90,4 +91,3 @@ const mockFAQs = [
 
 
 
-export const {useGetFAQsQuery, useGetFeaturesQuery} = feaFaqs;
