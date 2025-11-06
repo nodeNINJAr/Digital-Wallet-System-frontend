@@ -1,5 +1,5 @@
 import App from "@/App";
-import Login from "@/pages/auth/Login";
+import { Login } from "@/pages/auth/Login";
 import Register from "@/pages/auth/Register";
 import About from "@/pages/common/About";
 import Contact from "@/pages/common/Contact";
@@ -8,10 +8,6 @@ import Features from "@/pages/common/Features";
 import Home from "@/pages/common/Home";
 import Pricing from "@/pages/common/Pricing";
 import { createBrowserRouter } from "react-router";
-
-
-
-
 
 
 
