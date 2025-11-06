@@ -1,8 +1,6 @@
-<<<<<<< HEAD
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-=======
+
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
->>>>>>> 1555a1151d19f84683805fb0a9dda57c6ba6ec0b
+
 
 interface ThemeState {
   mode: 'light' | 'dark';

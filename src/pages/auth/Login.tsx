@@ -10,11 +10,8 @@ import { Label } from "@/components/ui/label";
 import { useLoginMutation } from "@/redux/features/authSlice";
 import { toast } from "sonner";
 import { Wallet, Eye, EyeOff, Loader2 } from "lucide-react";
-<<<<<<< HEAD
-=======
 import { useAppDispatch } from "@/redux/hook";
 import { setCredentials } from "@/redux/slice/authSlice";
->>>>>>> 1555a1151d19f84683805fb0a9dda57c6ba6ec0b
 
 // Zod Validation Schema
 const loginSchema = z.object({
@@ -31,19 +28,13 @@ export function Login() {
 
   const [login, { isLoading }] = useLoginMutation();
   const navigate = useNavigate();
-<<<<<<< HEAD
-=======
    const dispatch = useAppDispatch();
->>>>>>> 1555a1151d19f84683805fb0a9dda57c6ba6ec0b
   const [showPassword, setShowPassword] = useState(false);
 
   const onSubmit = async (data: LoginFormType) => {
     try {
       const result = await login(data).unwrap();
-<<<<<<< HEAD
-=======
         dispatch(setCredentials(result));
->>>>>>> 1555a1151d19f84683805fb0a9dda57c6ba6ec0b
       toast.success("Login successful!");
       
       // Redirect based on role (adjust paths as needed)
@@ -146,12 +137,7 @@ export function Login() {
                   Forgot password?
                 </Link>
               </div>
-
-<<<<<<< HEAD
-              <Button type="submit" className="w-full" disabled={isLoading}>
-=======
               <Button type="submit" className="w-full !border-gray-400 !text-gray-200" disabled={isLoading} variant={"outline"}>
->>>>>>> 1555a1151d19f84683805fb0a9dda57c6ba6ec0b
                 {isLoading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
