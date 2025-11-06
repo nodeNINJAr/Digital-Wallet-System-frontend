@@ -7,6 +7,12 @@ import Faqs from "@/pages/common/Faqs";
 import Features from "@/pages/common/Features";
 import Home from "@/pages/common/Home";
 import Pricing from "@/pages/common/Pricing";
+import UserDashboard from "@/pages/dashboard/user/Dashboard";
+import DepositMoneyPage from "@/pages/dashboard/user/Deposit";
+import ProfilePage from "@/pages/dashboard/user/Profile";
+import SendMoneyPage from "@/pages/dashboard/user/Send";
+import TransactionsPage from "@/pages/dashboard/user/Transactions";
+import WithdrawMoneyPage from "@/pages/dashboard/user/Withdraw";
 import { createBrowserRouter } from "react-router";
 
 
@@ -51,6 +57,30 @@ export const router = createBrowserRouter([
           
          ]
        },
+       {
+        path: "/dashboard/user",
+        Component:UserDashboard,
+        },
+        {
+        path: "/dashboard/user/deposit",
+        Component:DepositMoneyPage,
+        },
+        {
+        path: "/dashboard/user/profile",
+        Component:ProfilePage,
+        },
+        {
+        path: "/dashboard/user/send",
+        Component:SendMoneyPage,
+        },
+        {
+         path: "/dashboard/user/transactions",
+         Component:TransactionsPage,
+        },
+        {
+         path: "/dashboard/user/withdraw",
+         Component:WithdrawMoneyPage,
+        },
        {
         path: "/login",
         Component:Login,
