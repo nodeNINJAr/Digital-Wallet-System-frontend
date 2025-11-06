@@ -9,6 +9,10 @@ import { Wallet, Eye, EyeOff, Loader2, User, Briefcase } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAppDispatch } from '@/redux/hook';
 import { useRegisterMutation } from '@/redux/services/api';
+<<<<<<< HEAD
+=======
+import { setCredentials } from '@/redux/slice/authSlice';
+>>>>>>> 1555a1151d19f84683805fb0a9dda57c6ba6ec0b
 
 type UserRole = 'user' | 'agent' | 'admin';
 
@@ -225,7 +229,11 @@ export default function Register() {
                 )}
               </div>
 
+<<<<<<< HEAD
               <Button type="submit" className="w-full" disabled={isLoading}>
+=======
+              <Button type="submit" className="w-full !border-gray-400 !text-gray-200" disabled={isLoading} variant={"outline"}>
+>>>>>>> 1555a1151d19f84683805fb0a9dda57c6ba6ec0b
                 {isLoading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
