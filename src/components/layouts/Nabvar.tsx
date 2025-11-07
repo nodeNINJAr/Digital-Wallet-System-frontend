@@ -121,7 +121,7 @@ const Navbar = () => {
           <div className="flex items-center gap-2">
               <ModeToggle/>
               <Button asChild variant="outline" size="sm" className="text-sm">
-                <Link to="/login">Sign In</Link>
+                <Link to="/auth/login">Sign In</Link>
               </Button>
               <Button variant="ghost" asChild size="sm" className="text-sm">
                   <Link to="/login">Take a Tour</Link>
@@ -175,10 +175,10 @@ const Navbar = () => {
                 <div className="flex items-center gap-2">
                    <ModeToggle/>
                     <Button asChild variant="ghost" size="sm" className="text-sm">
-                      <Link to="/login">Sign In</Link>
+                      <Link to="/auth/login">Sign In</Link>
                     </Button>
                     <Button asChild size="sm" className="text-sm bg-amber-600" variant="outline">
-                        <Link to="/login">Take a Tour</Link>
+                        <Link to="/auth/login">Take a Tour</Link>
                     </Button>
                </div>
               </div>

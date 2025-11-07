@@ -13,7 +13,6 @@ import { User, Mail, Phone, Lock, Loader2, Save, MapPin, Briefcase } from 'lucid
 import { toast } from 'sonner';
 import { useAppDispatch, useAppSelector } from '@/redux/hook';
 import { useUpdateProfileMutation } from '@/redux/services/api';
-import { updateUser } from '@/redux/slice/authSlice';
 
 export default function AgentProfilePage() {
   const dispatch = useAppDispatch();
@@ -95,7 +94,7 @@ export default function AgentProfilePage() {
 
     try {
       const result = await updateProfile(formData).unwrap();
-      dispatch(updateUser(result));
+      // dispatch(updateUser(result));
       toast.success('Profile updated successfully!');
     } catch (error: any) {
       toast.error(error?.data || 'Failed to update profile. Please try again.');

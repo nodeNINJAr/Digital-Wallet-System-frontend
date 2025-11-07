@@ -28,7 +28,6 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAppDispatch, useAppSelector } from '@/redux/hook';
-import { logout } from '@/redux/slice/authSlice';
 import { toggleTheme } from '@/redux/slice/themeSlice';
 
 interface DashboardLayoutProps {
@@ -38,14 +37,16 @@ interface DashboardLayoutProps {
 export function DashboardLayout({ children }: DashboardLayoutProps) {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const { user } = useAppSelector((state) => state.auth);
+  const { loading, user } = useAppSelector((state: any) => state.auth);
+
+  // 
   const { mode } = useAppSelector((state) => state.theme);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleLogout = () => {
-    dispatch(logout());
+    // dispatch(LogOut());
     toast.success('Logged out successfully');
-    navigate('/login');
+    navigate('/auth/login');
   };
 
   const handleThemeToggle = () => {

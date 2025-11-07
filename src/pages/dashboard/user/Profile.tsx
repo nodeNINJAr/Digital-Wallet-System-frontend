@@ -8,12 +8,11 @@ import { Label } from '@/components/ui/label';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { User, Mail, Phone, Lock, Loader2, Save } from 'lucide-react';
 import { toast } from 'sonner';
-import { useAppDispatch, useAppSelector } from '@/redux/hook';
+import { useAppSelector } from '@/redux/hook';
 import { useUpdateProfileMutation } from '@/redux/services/api';
-import { updateUser } from '@/redux/slice/authSlice';
 
 export default function ProfilePage() {
-  const dispatch = useAppDispatch();
+  // const dispatch = useAppDispatch();
   const { user } = useAppSelector((state) => state.auth);
   const [updateProfile, { isLoading }] = useUpdateProfileMutation();
   
@@ -92,7 +91,7 @@ export default function ProfilePage() {
 
     try {
       const result = await updateProfile(formData).unwrap();
-      dispatch(updateUser(result));
+      // dispatch(updateUser(result));
       toast.success('Profile updated successfully!');
     } catch (error: any) {
       toast.error(error?.data || 'Failed to update profile. Please try again.');

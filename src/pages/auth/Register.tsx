@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router';
-
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -12,79 +14,58 @@ import { useRegisterMutation } from '@/redux/services/api';
 import { setCredentials } from '@/redux/slice/authSlice';
 
 
-type UserRole = 'user' | 'agent' | 'admin';
+// Validation schema
+const registerSchema = z.object({
+  name: z.string().min(2, 'Name must be at least 2 characters'),
+  email: z.string().email('Email is invalid'),
+  phone: z.string().regex(/^\+?[1-9]\d{9,14}$/, 'Phone number is invalid'),
+  password: z.string().min(6, 'Password must be at least 6 characters'),
+  confirmPassword: z.string(),
+  role: z.enum(['user', 'agent', 'admin']),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords do not match",
+  path: ["confirmPassword"],
+});
 
+
+type RegisterFormData = z.infer<typeof registerSchema>;
+
+
+// **
 export default function Register() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const [register, { isLoading }] = useRegisterMutation();
-  
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    password: '',
-    confirmPassword: '',
-    role: 'user' as UserRole,
-  });
   const [showPassword, setShowPassword] = useState(false);
-  const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const validateForm = () => {
-    const newErrors: Record<string, string> = {};
-    
-    if (!formData.name || formData.name.length < 2) {
-      newErrors.name = 'Name must be at least 2 characters';
-    }
-    
-    if (!formData.email) {
-      newErrors.email = 'Email is required';
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Email is invalid';
-    }
-    
-    if (!formData.phone) {
-      newErrors.phone = 'Phone number is required';
-    } else if (!/^\+?[1-9]\d{9,14}$/.test(formData.phone)) {
-      newErrors.phone = 'Phone number is invalid';
-    }
-    
-    if (!formData.password) {
-      newErrors.password = 'Password is required';
-    } else if (formData.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
-    }
-    
-    if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Passwords do not match';
-    }
-    
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+  const {
+    register: registerField,
+    handleSubmit,
+    formState: { errors },
+    setValue,
+    watch,
+  } = useForm<RegisterFormData>({
+    resolver: zodResolver(registerSchema),
+    defaultValues: {
+      name: '',
+      email: '',
+      phone: '',
+      password: '',
+      confirmPassword: '',
+      role: 'user',
+    },
+  });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!validateForm()) {
-      return;
-    }
+  const selectedRole = watch('role');
 
+  const onSubmit = async (data: RegisterFormData) => {
     try {
-      const { confirmPassword, ...registerData } = formData;
+      const { confirmPassword, ...registerData } = data;
       const result = await register(registerData).unwrap();
+       console.log(result,data);
       dispatch(setCredentials(result));
-      
       toast.success('Account created successfully!');
-      
-      // Redirect based on role
-      const roleRoutes = {
-        user: '/dashboard/user',
-        agent: '/dashboard/agent',
-        admin: '/dashboard/admin',
-      };
-      
-      navigate(roleRoutes[result.user.role]);
+      navigate("/auth/login");
     } catch (error: any) {
       toast.error(error?.data?.message || 'Registration failed. Please try again.');
     }
@@ -108,15 +89,15 @@ export default function Register() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               <div className="space-y-2">
                 <Label>Account Type</Label>
                 <div className="grid grid-cols-2 gap-3">
                   <button
                     type="button"
-                    onClick={() => setFormData({ ...formData, role: 'user' })}
+                    onClick={() => setValue('role', 'user')}
                     className={`flex flex-col items-center gap-2 p-4 rounded-lg border-2 transition-all ${
-                      formData.role === 'user'
+                      selectedRole === 'user'
                         ? 'border-primary bg-primary/5'
                         : 'border-border hover:border-primary/50'
                     }`}
@@ -129,9 +110,9 @@ export default function Register() {
                   </button>
                   <button
                     type="button"
-                    onClick={() => setFormData({ ...formData, role: 'agent' })}
+                    onClick={() => setValue('role', 'agent')}
                     className={`flex flex-col items-center gap-2 p-4 rounded-lg border-2 transition-all ${
-                      formData.role === 'agent'
+                      selectedRole === 'agent'
                         ? 'border-primary bg-primary/5'
                         : 'border-border hover:border-primary/50'
                     }`}
@@ -150,12 +131,11 @@ export default function Register() {
                 <Input
                   id="name"
                   placeholder="John Doe"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  {...registerField('name')}
                   className={errors.name ? 'border-destructive' : ''}
                 />
                 {errors.name && (
-                  <p className="text-sm text-destructive">{errors.name}</p>
+                  <p className="text-sm text-destructive">{errors.name.message}</p>
                 )}
               </div>
 
@@ -165,12 +145,11 @@ export default function Register() {
                   id="email"
                   type="email"
                   placeholder="your.email@example.com"
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  {...registerField('email')}
                   className={errors.email ? 'border-destructive' : ''}
                 />
                 {errors.email && (
-                  <p className="text-sm text-destructive">{errors.email}</p>
+                  <p className="text-sm text-destructive">{errors.email.message}</p>
                 )}
               </div>
 
@@ -179,12 +158,11 @@ export default function Register() {
                 <Input
                   id="phone"
                   placeholder="+1234567890"
-                  value={formData.phone}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  {...registerField('phone')}
                   className={errors.phone ? 'border-destructive' : ''}
                 />
                 {errors.phone && (
-                  <p className="text-sm text-destructive">{errors.phone}</p>
+                  <p className="text-sm text-destructive">{errors.phone.message}</p>
                 )}
               </div>
 
@@ -195,8 +173,7 @@ export default function Register() {
                     id="password"
                     type={showPassword ? 'text' : 'password'}
                     placeholder="Create a strong password"
-                    value={formData.password}
-                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                    {...registerField('password')}
                     className={errors.password ? 'border-destructive' : ''}
                   />
                   <button
@@ -208,7 +185,7 @@ export default function Register() {
                   </button>
                 </div>
                 {errors.password && (
-                  <p className="text-sm text-destructive">{errors.password}</p>
+                  <p className="text-sm text-destructive">{errors.password.message}</p>
                 )}
               </div>
 
@@ -218,14 +195,14 @@ export default function Register() {
                   id="confirmPassword"
                   type="password"
                   placeholder="Re-enter your password"
-                  value={formData.confirmPassword}
-                  onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                  {...registerField('confirmPassword')}
                   className={errors.confirmPassword ? 'border-destructive' : ''}
                 />
                 {errors.confirmPassword && (
-                  <p className="text-sm text-destructive">{errors.confirmPassword}</p>
+                  <p className="text-sm text-destructive">{errors.confirmPassword.message}</p>
                 )}
               </div>
+
               <Button type="submit" className="w-full !border-gray-400 !text-gray-200" disabled={isLoading} variant={"outline"}>
                 {isLoading ? (
                   <>
@@ -240,7 +217,7 @@ export default function Register() {
 
             <p className="mt-6 text-center text-sm text-muted-foreground">
               Already have an account?{' '}
-              <Link to="/login" className="text-primary hover:underline font-medium">
+              <Link to="/auth/login" className="text-primary hover:underline font-medium">
                 Sign in
               </Link>
             </p>

@@ -1,4 +1,4 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+
 import type { 
   LoginRequest, 
   LoginResponse, 
@@ -11,6 +11,7 @@ import type {
   AgentTransaction,
   DashboardStats
 } from '@/types';
+import { baseApi } from '../baseApi';
 
 // Mock data for development
 const MOCK_USERS: User[] = [
@@ -29,79 +30,46 @@ const MOCK_TRANSACTIONS: Transaction[] = [
   { id: 't5', type: 'send', amount: 300, fee: 3, status: 'completed', fromUser: '1', toUser: '4', description: 'Grocery payment', createdAt: '2024-03-05T16:45:00Z' },
 ];
 
-export const api = createApi({
-  reducerPath: 'api',
-  baseQuery: fetchBaseQuery({ 
-    baseUrl: '/api',
-    prepareHeaders: (headers, { getState }) => {
-      const token = (getState() as any).auth.token;
-      if (token) {
-        headers.set('authorization', `Bearer ${token}`);
-      }
-      return headers;
-    },
-  }),
-  tagTypes: ['User', 'Transaction', 'Agent', 'Stats'],
+
+
+// 
+export const api = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    // Auth endpoints
-    login: builder.mutation<LoginResponse, LoginRequest>({
-      queryFn: async ({ email, password }) => {
-        // Mock login
-        await new Promise(resolve => setTimeout(resolve, 800));
-        
-        const user = MOCK_USERS.find(u => u.email === email);
-        if (user && password === 'password') {
-          return {
-            data: {
-              user,
-              token: `mock-jwt-token-${user.id}`,
-            },
-          };
-        }
-        
-        return { error: { status: 401, data: 'Invalid credentials' } };
-      },
+    // Login
+    login: builder.mutation({
+      query: (userInfo) => ({
+        url: "/auth/login",
+        method: "POST",
+        data: userInfo,
+      }),
     }),
 
-    register: builder.mutation<LoginResponse, RegisterRequest>({
-      queryFn: async (data) => {
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        const newUser: User = {
-          id: `user-${Date.now()}`,
-          name: data.name,
-          email: data.email,
-          phone: data.phone,
-          role: data.role,
-          balance: data.role === 'user' ? 1000 : 5000,
-          status: data.role === 'agent' ? 'pending' : 'active',
-          createdAt: new Date().toISOString(),
-        };
-        
-        return {
-          data: {
-            user: newUser,
-            token: `mock-jwt-token-${newUser.id}`,
-          },
-        };
-      },
+    // Register
+    register: builder.mutation({
+      query: (userInfo) => ({
+        url: "/user/register",
+        method: "POST",
+        data: userInfo,
+      }),
     }),
 
-    // User endpoints
+    // Get User Profile (real API)
     getProfile: builder.query<User, void>({
-      queryFn: async () => {
-        await new Promise(resolve => setTimeout(resolve, 500));
-        return { data: MOCK_USERS[0] };
-      },
-      providesTags: ['User'],
+      query: () => ({
+        url: "/user/profile",
+        method: "GET",
+      }),
+      providesTags: ["User"],
     }),
 
+    //  Update User Profile (real API)
     updateProfile: builder.mutation<User, Partial<User>>({
-      queryFn: async (data) => {
-        await new Promise(resolve => setTimeout(resolve, 600));
-        return { data: { ...MOCK_USERS[0], ...data } };
-      },
-      invalidatesTags: ['User'],
+      query: (data) => ({
+        url: "/user/profile",
+        method: "PATCH", // or "PUT" based on your backend
+        data,
+      }),
+      invalidatesTags: ["User"],
     }),
 
     // Transaction endpoints
@@ -254,6 +222,7 @@ export const api = createApi({
       providesTags: ['Stats'],
     }),
   }),
+
 });
 
 export const {

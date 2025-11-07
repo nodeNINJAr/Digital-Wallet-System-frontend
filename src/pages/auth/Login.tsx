@@ -13,7 +13,8 @@ import { Wallet, Eye, EyeOff, Loader2 } from "lucide-react";
 import { useAppDispatch } from "@/redux/hook";
 import { setCredentials } from "@/redux/slice/authSlice";
 
-// Zod Validation Schema
+
+// zod schema
 const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
   password: z.string().min(6, "Password must be at least 6 characters"),
@@ -21,60 +22,73 @@ const loginSchema = z.object({
 
 type LoginFormType = z.infer<typeof loginSchema>;
 
+//
+const getRoleRoute = (role: string): string => {
+  const routes: Record<string, string> = {
+    user: "/dashboard/user",
+    agent: "/dashboard/agent",
+    admin: "/dashboard/admin",
+  };
+  return routes[role] || "/dashboard";
+};
+
+
+
+// 
 export function Login() {
+  // 
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [login, { isLoading }] = useLoginMutation();
+  // 
   const { register, handleSubmit, formState: { errors }, setValue } = useForm<LoginFormType>({
     resolver: zodResolver(loginSchema),
+    defaultValues: { email: "", password: "" },
   });
 
-  const [login, { isLoading }] = useLoginMutation();
-  const navigate = useNavigate();
-   const dispatch = useAppDispatch();
-  const [showPassword, setShowPassword] = useState(false);
-
+  
+  // 
   const onSubmit = async (data: LoginFormType) => {
+    // 
     try {
       const result = await login(data).unwrap();
-        dispatch(setCredentials(result));
+       dispatch(setCredentials(result?.data?.user));
       toast.success("Login successful!");
-      
-      // Redirect based on role (adjust paths as needed)
-      const roleRoutes = {
-        user: "/dashboard/user",
-        agent: "/dashboard/agent",
-        admin: "/dashboard/admin",
-      };
-      
-      navigate(roleRoutes[result.user.role] || "/dashboard");
+      navigate(getRoleRoute(result?.data?.user?.role));
     } catch (error: any) {
       toast.error(error?.data?.message || "Login failed. Please check your credentials.");
       console.error(error);
     }
   };
 
+  
+
+  // demo login
   const handleDemoLogin = async (email: string) => {
+    const password = "password";
     setValue("email", email);
-    setValue("password", "password");
-    
+    setValue("password", password);
+
     try {
-      const result = await login({ email, password: "password" }).unwrap();
+      const result = await login({ email, password }).unwrap();
+      dispatch(setCredentials(result));
+      
       toast.success("Demo login successful!");
-      
-      const roleRoutes = {
-        user: "/dashboard/user",
-        agent: "/dashboard/agent",
-        admin: "/dashboard/admin",
-      };
-      
-      navigate(roleRoutes[result.user.role] || "/dashboard");
+      navigate(getRoleRoute(result.user.role));
     } catch (error: any) {
-      toast.error(error?.data?.message || "Demo login failed");
+      toast.error(error?.data?.message || "Demo login failed.");
       console.error(error);
     }
   };
 
+
+  // UI
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-background to-secondary/20 px-4">
       <div className="w-full max-w-md space-y-6">
+        {/* Header */}
         <div className="text-center">
           <Link to="/" className="inline-flex items-center gap-2 mb-6">
             <Wallet className="h-10 w-10 text-primary" />
@@ -82,15 +96,16 @@ export function Login() {
           </Link>
         </div>
 
+        {/* Login Card */}
         <Card>
           <CardHeader>
             <CardTitle className="text-2xl">Welcome Back</CardTitle>
-            <CardDescription>
-              Sign in to your account to continue
-            </CardDescription>
+            <CardDescription>Sign in to your account to continue</CardDescription>
           </CardHeader>
+
           <CardContent>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+              {/* Email */}
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <Input
@@ -100,11 +115,10 @@ export function Login() {
                   {...register("email")}
                   className={errors.email ? "border-destructive" : ""}
                 />
-                {errors.email && (
-                  <p className="text-sm text-destructive">{errors.email.message}</p>
-                )}
+                {errors.email && <p className="text-sm text-destructive">{errors.email.message}</p>}
               </div>
 
+              {/* Password */}
               <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>
                 <div className="relative">
@@ -123,11 +137,10 @@ export function Login() {
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
                 </div>
-                {errors.password && (
-                  <p className="text-sm text-destructive">{errors.password.message}</p>
-                )}
+                {errors.password && <p className="text-sm text-destructive">{errors.password.message}</p>}
               </div>
 
+              {/* Remember / Forgot */}
               <div className="flex items-center justify-between text-sm">
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input type="checkbox" className="rounded" />
@@ -137,7 +150,14 @@ export function Login() {
                   Forgot password?
                 </Link>
               </div>
-              <Button type="submit" className="w-full !border-gray-400 !text-gray-200" disabled={isLoading} variant={"outline"}>
+
+              {/* Submit */}
+              <Button
+                type="submit"
+                className="w-full !border-gray-400 !text-gray-200"
+                disabled={isLoading}
+                variant="outline"
+              >
                 {isLoading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -149,63 +169,56 @@ export function Login() {
               </Button>
             </form>
 
-            <div className="mt-6">
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t" />
-                </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-card px-2 text-muted-foreground">
-                    Or try demo accounts
-                  </span>
-                </div>
+            {/* Divider */}
+            <div className="mt-6 relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t" />
               </div>
-
-              <div className="mt-6 space-y-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="w-full"
-                  onClick={() => handleDemoLogin("user@test.com")}
-                  disabled={isLoading}
-                >
-                  Demo User Account
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="w-full"
-                  onClick={() => handleDemoLogin("agent@test.com")}
-                  disabled={isLoading}
-                >
-                  Demo Agent Account
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="w-full"
-                  onClick={() => handleDemoLogin("admin@test.com")}
-                  disabled={isLoading}
-                >
-                  Demo Admin Account
-                </Button>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-card px-2 text-muted-foreground">Or try demo accounts</span>
               </div>
             </div>
 
+            {/* Demo Buttons */}
+            <div className="mt-6 space-y-2">
+              {[
+                { email: "user@test.com", label: "Demo User Account" },
+                { email: "agent@test.com", label: "Demo Agent Account" },
+                { email: "admin@test.com", label: "Demo Admin Account" },
+              ].map(({ email, label }) => (
+                <Button
+                  key={email}
+                  type="button"
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => handleDemoLogin(email)}
+                  disabled={isLoading}
+                >
+                  {label}
+                </Button>
+              ))}
+            </div>
+
+            {/* Register Link */}
             <p className="mt-6 text-center text-sm text-muted-foreground">
-              Don't have an account?{" "}
-              <Link to="/register" className="text-primary hover:underline font-medium">
+              Don’t have an account?{" "}
+              <Link to="/auth/register" className="text-primary hover:underline font-medium">
                 Sign up
               </Link>
             </p>
           </CardContent>
         </Card>
 
+        {/* Footer */}
         <p className="text-center text-xs text-muted-foreground">
           By continuing, you agree to our{" "}
-          <Link to="/terms" className="underline hover:text-foreground">Terms of Service</Link>
-          {" "}and{" "}
-          <Link to="/privacy" className="underline hover:text-foreground">Privacy Policy</Link>
+          <Link to="/terms" className="underline hover:text-foreground">
+            Terms of Service
+          </Link>{" "}
+          and{" "}
+          <Link to="/privacy" className="underline hover:text-foreground">
+            Privacy Policy
+          </Link>
         </p>
       </div>
     </div>
