@@ -7,7 +7,7 @@ import { useDispatch } from "react-redux";
 export const useAuthCheck = () => {
   const dispatch = useDispatch();
   const { data, error, isLoading } = useGetProfileQuery();
-
+    console.log("inside the hook", data);
   useEffect(() => {
     if (isLoading) {
       dispatch(setLoading(true));

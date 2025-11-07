@@ -41,6 +41,23 @@ export const api = baseApi.injectEndpoints({
         url: "/auth/login",
         method: "POST",
         data: userInfo,
+        credentials: 'include',
+      }),
+    }),
+      // ** veryfy user 
+    verifyUser: builder.query<{ data: User }, void>({
+      query: () => ({
+        url: '/auth/verify',
+        method: 'GET',
+      }),
+    }),
+     
+    // 
+    // Logout mutation
+    logout: builder.mutation({
+      query: () => ({
+        url: '/auth/logout',
+        method: 'POST',
       }),
     }),
 
@@ -54,12 +71,12 @@ export const api = baseApi.injectEndpoints({
     }),
 
     // Get User Profile (real API)
-    getProfile: builder.query<User, void>({
+    getProfile: builder.query({
       query: () => ({
-        url: "/user/profile",
-        method: "GET",
+        url: '/user/profile',
+        method: 'GET',
+        credentials: 'include',
       }),
-      providesTags: ["User"],
     }),
 
     //  Update User Profile (real API)
@@ -72,70 +89,57 @@ export const api = baseApi.injectEndpoints({
       invalidatesTags: ["User"],
     }),
 
-    // Transaction endpoints
-    getTransactions: builder.query<{ transactions: Transaction[]; total: number }, { page?: number; limit?: number; type?: string; status?: string; dateFrom?: string; dateTo?: string }>({
-      queryFn: async ({ page = 1, limit = 10 }) => {
-        await new Promise(resolve => setTimeout(resolve, 600));
-        const start = (page - 1) * limit;
-        const end = start + limit;
+
+
+ // ** Get transactions
+    getTransactions: builder.query<
+      { transactions: Transaction[]; total: number },
+      { page?: number; limit?: number; type?: string; status?: string; dateFrom?: string; dateTo?: string }
+    >({
+      query: ({ page = 1, limit = 10, type, status, dateFrom, dateTo }) => {
+        const params = new URLSearchParams();
+        params.append('page', page.toString());
+        params.append('limit', limit.toString());
+        if (type) params.append('type', type);
+        if (status) params.append('status', status);
+        if (dateFrom) params.append('dateFrom', dateFrom);
+        if (dateTo) params.append('dateTo', dateTo);
+
         return {
-          data: {
-            transactions: MOCK_TRANSACTIONS.slice(start, end),
-            total: MOCK_TRANSACTIONS.length,
-          },
+          url: `/transactions?${params.toString()}`,
+          method: 'GET',
         };
       },
       providesTags: ['Transaction'],
     }),
 
+    // Send money
     sendMoney: builder.mutation<Transaction, SendMoneyRequest>({
-      queryFn: async (data) => {
-        await new Promise(resolve => setTimeout(resolve, 800));
-        const transaction: Transaction = {
-          id: `t-${Date.now()}`,
-          type: 'send',
-          amount: data.amount,
-          fee: Math.round(data.amount * 0.01),
-          status: 'completed',
-          description: data.description || 'Money transfer',
-          createdAt: new Date().toISOString(),
-        };
-        return { data: transaction };
-      },
+      query: (data) => ({
+        url: '/transactions/send',
+        method: 'POST',
+        data: data,
+      }),
       invalidatesTags: ['Transaction', 'User', 'Stats'],
     }),
 
+    // Deposit money
     depositMoney: builder.mutation<Transaction, DepositRequest>({
-      queryFn: async (data) => {
-        await new Promise(resolve => setTimeout(resolve, 800));
-        const transaction: Transaction = {
-          id: `t-${Date.now()}`,
-          type: 'deposit',
-          amount: data.amount,
-          fee: 0,
-          status: 'completed',
-          description: 'Cash deposit',
-          createdAt: new Date().toISOString(),
-        };
-        return { data: transaction };
-      },
+      query: (data) => ({
+        url: '/transactions/deposit',
+        method: 'POST',
+        data: data,
+      }),
       invalidatesTags: ['Transaction', 'User', 'Stats'],
     }),
 
+    // Withdraw money
     withdrawMoney: builder.mutation<Transaction, WithdrawRequest>({
-      queryFn: async (data) => {
-        await new Promise(resolve => setTimeout(resolve, 800));
-        const transaction: Transaction = {
-          id: `t-${Date.now()}`,
-          type: 'withdraw',
-          amount: data.amount,
-          fee: Math.round(data.amount * 0.01),
-          status: 'completed',
-          description: 'Cash withdrawal',
-          createdAt: new Date().toISOString(),
-        };
-        return { data: transaction };
-      },
+      query: (data) => ({
+        url: '/transactions/withdraw',
+        method: 'POST',
+        data: data,
+      }),
       invalidatesTags: ['Transaction', 'User', 'Stats'],
     }),
 
@@ -228,6 +232,8 @@ export const api = baseApi.injectEndpoints({
 export const {
   useLoginMutation,
   useRegisterMutation,
+  useVerifyUserQuery,
+  useLogoutMutation,
   useGetProfileQuery,
   useUpdateProfileMutation,
   useGetTransactionsQuery,

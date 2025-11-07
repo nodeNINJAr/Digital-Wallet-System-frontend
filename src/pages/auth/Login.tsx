@@ -11,7 +11,7 @@ import { useLoginMutation } from "@/redux/features/authSlice";
 import { toast } from "sonner";
 import { Wallet, Eye, EyeOff, Loader2 } from "lucide-react";
 import { useAppDispatch } from "@/redux/hook";
-import { setCredentials } from "@/redux/slice/authSlice";
+import { setUser } from "@/redux/slice/authSlice";
 
 
 // zod schema
@@ -54,7 +54,7 @@ export function Login() {
     // 
     try {
       const result = await login(data).unwrap();
-       dispatch(setCredentials(result?.data?.user));
+       dispatch(setUser(result?.data?.user));
       toast.success("Login successful!");
       navigate(getRoleRoute(result?.data?.user?.role));
     } catch (error: any) {
@@ -73,7 +73,7 @@ export function Login() {
 
     try {
       const result = await login({ email, password }).unwrap();
-      dispatch(setCredentials(result));
+      dispatch(setUser(result));
       
       toast.success("Demo login successful!");
       navigate(getRoleRoute(result.user.role));

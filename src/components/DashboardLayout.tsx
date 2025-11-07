@@ -29,6 +29,8 @@ import {
 import { toast } from 'sonner';
 import { useAppDispatch, useAppSelector } from '@/redux/hook';
 import { toggleTheme } from '@/redux/slice/themeSlice';
+import { clearUser } from '@/redux/slice/authSlice';
+import { useLogoutMutation } from '@/redux/services/api';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -37,32 +39,41 @@ interface DashboardLayoutProps {
 export function DashboardLayout({ children }: DashboardLayoutProps) {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const { loading, user } = useAppSelector((state: any) => state.auth);
-
-  // 
+  const { user } = useAppSelector((state: any) => state.auth);
+  const [ logout, {isLoading}]= useLogoutMutation(undefined)
   const { mode } = useAppSelector((state) => state.theme);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  
 
-  const handleLogout = () => {
-    // dispatch(LogOut());
-    toast.success('Logged out successfully');
-    navigate('/auth/login');
-  };
+  // ** handle logout
+ const handleLogout = async () => {
+    try {
+      await logout(undefined).unwrap();
+      dispatch(clearUser());
+      toast.success("Logged out successfully");
+      navigate("/auth/login");
+    } catch (err: any) {
+      toast.error(err?.data?.message || "Logout failed");
+      console.error(err);
+    }
+ }
 
+    // 
   const handleThemeToggle = () => {
     dispatch(toggleTheme());
   };
 
   const getUserInitials = () => {
-    if (!user?.name) return 'U';
-    return user.name
-      .split(' ')
-      .map((n) => n[0])
-      .join('')
-      .toUpperCase()
-      .slice(0, 2);
-  };
-
+      if (!user?.name) return 'U';
+      return user.name
+        .split(' ')
+        .map((n) => n[0])
+        .join('')
+        .toUpperCase()
+        .slice(0, 2);
+    };
+   
+  // 
   const getNavigationItems = () => {
     const baseRoute = `/dashboard/${user?.role}`;
     
@@ -174,7 +185,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-destructive">
                     <LogOut className="mr-2 h-4 w-4" />
-                    Logout
+                     {isLoading ? "Logging out..." : "Logout"}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>

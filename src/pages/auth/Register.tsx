@@ -11,7 +11,7 @@ import { Wallet, Eye, EyeOff, Loader2, User, Briefcase } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAppDispatch } from '@/redux/hook';
 import { useRegisterMutation } from '@/redux/services/api';
-import { setCredentials } from '@/redux/slice/authSlice';
+import { setUser } from '@/redux/slice/authSlice';
 
 
 // Validation schema
@@ -63,7 +63,7 @@ export default function Register() {
       const { confirmPassword, ...registerData } = data;
       const result = await register(registerData).unwrap();
        console.log(result,data);
-      dispatch(setCredentials(result));
+      dispatch(setUser(result));
       toast.success('Account created successfully!');
       navigate("/auth/login");
     } catch (error: any) {

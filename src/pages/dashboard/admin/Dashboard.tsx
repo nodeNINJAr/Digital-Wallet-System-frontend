@@ -8,7 +8,6 @@ import {
   ArrowLeftRight,
   DollarSign,
   TrendingUp,
-  TrendingDown,
   PlayCircle,
 } from 'lucide-react';
 import {
@@ -94,7 +93,7 @@ export default function AdminDashboard() {
 
   if (loading) {
     return (
-    //   <ProtectedRoute allowedRoles={['admin']}>
+      <ProtectedRoute allowedRoles={['admin']}>
         <DashboardLayout>
           <div className="space-y-6">
             <div className="flex items-center justify-between">
@@ -112,12 +111,12 @@ export default function AdminDashboard() {
             </div>
           </div>
         </DashboardLayout>
-    //   </ProtectedRoute>
+      </ProtectedRoute>
     );
   }
 
   return (
-    // <ProtectedRoute allowedRoles={['admin']}>
+    <ProtectedRoute allowedRoles={['admin']}>
       <DashboardLayout>
         <div className="space-y-6">
           {/* Header */}
@@ -308,6 +307,6 @@ export default function AdminDashboard() {
         {/* Tour Component */}
         {showTour && <AdminTour onComplete={() => setShowTour(false)} />}
       </DashboardLayout>
-    // </ProtectedRoute>
+    </ProtectedRoute>
   );
 }
