@@ -7,6 +7,11 @@ import Faqs from "@/pages/common/Faqs";
 import Features from "@/pages/common/Features";
 import Home from "@/pages/common/Home";
 import Pricing from "@/pages/common/Pricing";
+import CashServicePage from "@/pages/dashboard/agent/CashService";
+import CommissionPage from "@/pages/dashboard/agent/Commission";
+import AgentDashboard from "@/pages/dashboard/agent/Dashboard";
+import AgentProfilePage from "@/pages/dashboard/agent/Profile";
+import AgentTransactionsPage from "@/pages/dashboard/agent/Transactions";
 import UserDashboard from "@/pages/dashboard/user/Dashboard";
 import DepositMoneyPage from "@/pages/dashboard/user/Deposit";
 import ProfilePage from "@/pages/dashboard/user/Profile";
@@ -76,6 +81,28 @@ export const router = createBrowserRouter([
         {
          path: "/dashboard/user/withdraw",
          Component:WithdrawMoneyPage,
+        },
+
+        // agent
+        {
+        path: "/dashboard/agent",
+        Component:AgentDashboard
+        },
+        {
+        path: "/dashboard/agent/commission",
+        Component:CommissionPage,
+        },
+        {
+        path: "/dashboard/agent/profile",
+        Component:AgentProfilePage,
+        },
+        {
+        path: "/dashboard/agent/cash-service",
+        Component:CashServicePage,
+        },
+        {
+        path: "/dashboard/agent/transactions",
+        Component:AgentTransactionsPage,
         },
        {
         path: "/login",
