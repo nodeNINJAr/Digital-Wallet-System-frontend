@@ -7,6 +7,11 @@ import Faqs from "@/pages/common/Faqs";
 import Features from "@/pages/common/Features";
 import Home from "@/pages/common/Home";
 import Pricing from "@/pages/common/Pricing";
+import ManageAgentsPage from "@/pages/dashboard/admin/Agents";
+import AdminDashboard from "@/pages/dashboard/admin/Dashboard";
+import AdminSettingsPage from "@/pages/dashboard/admin/Settings";
+import AdminTransactionsPage from "@/pages/dashboard/admin/Transactions";
+import ManageUsersPage from "@/pages/dashboard/admin/Users";
 import CashServicePage from "@/pages/dashboard/agent/CashService";
 import CommissionPage from "@/pages/dashboard/agent/Commission";
 import AgentDashboard from "@/pages/dashboard/agent/Dashboard";
@@ -58,6 +63,7 @@ export const router = createBrowserRouter([
           
          ]
        },
+      // user    
        {
         path: "/dashboard/user",
         Component:UserDashboard,
@@ -104,6 +110,28 @@ export const router = createBrowserRouter([
         path: "/dashboard/agent/transactions",
         Component:AgentTransactionsPage,
         },
+        // admin
+            {
+        path: "/dashboard/admin",
+        Component:AdminDashboard
+        },
+        {
+        path: "/dashboard/admin/users",
+        Component:ManageUsersPage,
+        },
+        {
+        path: "/dashboard/admin/transactions",
+        Component:AdminTransactionsPage,
+        },
+        {
+        path: "/dashboard/admin/settings",
+        Component:AdminSettingsPage,
+        },
+        {
+        path: "/dashboard/admin/Agents",
+        Component:ManageAgentsPage,
+        },
+        // auth
        {
         path: "/login",
         Component:Login,
