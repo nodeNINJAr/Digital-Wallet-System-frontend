@@ -31,6 +31,37 @@ const MOCK_TRANSACTIONS: Transaction[] = [
 ];
 
 
+interface Agent {
+  _id: string;
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  location?: string;
+  status: 'active' | 'inactive';
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface GetAgentsQuery {
+  search?: string;
+  location?: string;
+  status?: 'active' | 'inactive';
+  page?: number;
+  limit?: number;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+}
+
+interface AgentsResponse {
+  agents: Agent[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
 
 // 
 export const api = baseApi.injectEndpoints({
@@ -88,15 +119,31 @@ export const api = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["User"],
     }),
+   
+// Get all agents with filters
+    getAgents: builder.query<AgentsResponse, GetAgentsQuery | void>({
+      query: (params = {}) => ({
+        url: 'user/agents',
+        method: 'GET',
+        params,
+      }),
+      providesTags: ['Agents'],
+    }),
+
+    // Get single agent by ID
+    // getAgentById: builder.query<Agent, string>({
+    //   query: (agentId) => `/agents/${agentId}`,
+    //   providesTags: (result, error, id) => [{ type: 'Agents', id }],
+    // }),
 
 
 
  // ** Get transactions
-    getTransactions: builder.query<
-      { transactions: Transaction[]; total: number },
-      { page?: number; limit?: number; type?: string; status?: string; dateFrom?: string; dateTo?: string }
+   getTransactions: builder.query<
+      { transactions: Transaction[]; meta: { total: number; totalPages: number; page: number; limit: number } },
+      { page?: number; limit?: number; type?: string; status?: string; dateFrom?: string; dateTo?: string; search?: string }
     >({
-      query: ({ page = 1, limit = 10, type, status, dateFrom, dateTo }) => {
+      query: ({ page = 1, limit = 10, type, status, dateFrom, dateTo, search }) => {
         const params = new URLSearchParams();
         params.append('page', page.toString());
         params.append('limit', limit.toString());
@@ -104,13 +151,14 @@ export const api = baseApi.injectEndpoints({
         if (status) params.append('status', status);
         if (dateFrom) params.append('dateFrom', dateFrom);
         if (dateTo) params.append('dateTo', dateTo);
+        if (search) params.append('search', search);
 
         return {
-          url: `/transactions?${params.toString()}`,
+          url: `/transactions/me?${params.toString()}`,
           method: 'GET',
         };
       },
-      providesTags: ['Transaction'],
+      providesTags: [{ type: 'Transaction' }],
     }),
 
     // Send money
@@ -235,6 +283,7 @@ export const {
   useVerifyUserQuery,
   useLogoutMutation,
   useGetProfileQuery,
+  useGetAgentsQuery,
   useUpdateProfileMutation,
   useGetTransactionsQuery,
   useSendMoneyMutation,
