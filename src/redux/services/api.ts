@@ -190,6 +190,15 @@ export const api = baseApi.injectEndpoints({
       }),
       invalidatesTags: ['Transaction', 'User', 'Stats'],
     }),
+    // stats
+    // Get dashboard stats
+    getDashboardStats: builder.query<DashboardStats, void>({
+      query: () => ({ url: '/user/dashboard/stats', method: 'GET'}),
+      providesTags: ['Stats'],
+    }),
+
+
+
 
     // Agent endpoints
     agentAddMoney: builder.mutation<Transaction, AgentTransaction>({
@@ -255,24 +264,24 @@ export const api = baseApi.injectEndpoints({
       invalidatesTags: ['User', 'Agent'],
     }),
 
-    getDashboardStats: builder.query<DashboardStats, void>({
-      queryFn: async () => {
-        await new Promise(resolve => setTimeout(resolve, 500));
-        return {
-          data: {
-            totalUsers: 150,
-            totalAgents: 25,
-            totalTransactions: 1250,
-            totalVolume: 2500000,
-            balance: 5000,
-            todayTransactions: 45,
-            monthlyRevenue: 125000,
-            commission: 3500,
-          },
-        };
-      },
-      providesTags: ['Stats'],
-    }),
+  //   getDashboardStats: builder.query<DashboardStats, void>({
+  //     queryFn: async () => {
+  //       await new Promise(resolve => setTimeout(resolve, 500));
+  //       return {
+  //         data: {
+  //           totalUsers: 150,
+  //           totalAgents: 25,
+  //           totalTransactions: 1250,
+  //           totalVolume: 2500000,
+  //           balance: 5000,
+  //           todayTransactions: 45,
+  //           monthlyRevenue: 125000,
+  //           commission: 3500,
+  //         },
+  //       };
+  //     },
+  //     providesTags: ['Stats'],
+  //   }),
   }),
 
 });
@@ -289,10 +298,10 @@ export const {
   useSendMoneyMutation,
   useDepositMoneyMutation,
   useWithdrawMoneyMutation,
+  useGetDashboardStatsQuery,
   useAgentAddMoneyMutation,
   useAgentWithdrawMoneyMutation,
   useGetAllUsersQuery,
   useGetAllAgentsQuery,
   useUpdateUserStatusMutation,
-  useGetDashboardStatsQuery,
 } = api;
