@@ -149,7 +149,7 @@ export default function SendMoneyPage() {
 
                 {/* Action Buttons */}
                 <div className="flex gap-3">
-                  <Button type="submit" className="flex-1" disabled={isLoading}>
+                  <Button type="submit" className="flex-1 bg-black dark:bg-white" disabled={isLoading}>
                     {isLoading ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -164,7 +164,7 @@ export default function SendMoneyPage() {
                   </Button>
                   <Button
                     type="button"
-                    variant="outline"
+                    variant="destructive"
                     onClick={handleCancel}
                     disabled={isLoading}
                   >

@@ -60,7 +60,12 @@ export default function ManageAgentsPage() {
   const [activeAgentWallet] = useActiveAgentwalletMutation();
   const agents = agentsData?.enrichedAgents || [];
   const totalPages = data?.data?.meta?.totalPages;
+   
+  console.log(agents);
 
+
+
+  // 
   const handleApplyFilters = () => {
     setAppliedFilters(filters);
     setPage(1);
@@ -152,7 +157,7 @@ export default function ManageAgentsPage() {
                     <SelectItem value="BLOCKED">Blocked</SelectItem>
                   </SelectContent>
                 </Select>
-                <Button variant={"outline"} className='!text-white/70 !border-white/30' onClick={handleApplyFilters}>Apply</Button>
+                <Button variant={"outline"} className='dark:!text-white/70 dark:!border-white/30' onClick={handleApplyFilters}>Apply</Button>
               </div>
             </CardContent>
           </Card>

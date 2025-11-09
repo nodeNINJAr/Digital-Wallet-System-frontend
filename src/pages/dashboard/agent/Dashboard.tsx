@@ -64,7 +64,6 @@ export default function AgentDashboard() {
 
 
   const [showTour, setShowTour] = useState(false);
-  // const { mode } = useAppSelector((state) => state.theme);
 
   useEffect(() => {
     // Check if tour has been shown
@@ -142,19 +141,19 @@ export default function AgentDashboard() {
             <CardContent>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 <Link to="/dashboard/agent/cash-service?type=cash-in">
-                  <Button variant={"outline"} className="!border-white/10 !text-white/40 w-full h-24 flex flex-col gap-2">
+                  <Button variant={"outline"} className="dark:!border-white/10 dark:!text-white/40 w-full h-24 flex flex-col gap-2">
                     <Plus className="h-6 w-6" />
                     <span>Cash In</span>
                   </Button>
                 </Link>
                 <Link to="/dashboard/agent/cash-service?type=withdraw">
-                  <Button variant="outline" className="!border-white/10 !text-white/40 w-full h-24 flex flex-col gap-2">
+                  <Button variant="outline" className="dark:!border-white/10 dark:!text-white/40 w-full h-24 flex flex-col gap-2">
                     <Minus className="h-6 w-6" />
                     <span>Withdraw</span>
                   </Button>
                 </Link>
                 <Link to="/dashboard/agent/transactions">
-                  <Button variant="outline" className="!border-white/10 !text-white/40 w-full h-24 flex flex-col gap-2">
+                  <Button variant="outline" className="dark:!border-white/10 dark:!text-white/40 w-full h-24 flex flex-col gap-2">
                     <ArrowUpRight className="h-6 w-6" />
                     <span>View All</span>
                   </Button>

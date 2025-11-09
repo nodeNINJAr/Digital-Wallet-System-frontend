@@ -359,7 +359,7 @@ export default function AgentTransactionsPage() {
                     variant={page === i + 1 ? 'default' : 'outline'}
                     size="sm"
                     onClick={() => setPage(i + 1)}
-                    className="w-10"
+                    className="w-10 bg-black dark:bg-white"
                   >
                     {i + 1}
                   </Button>

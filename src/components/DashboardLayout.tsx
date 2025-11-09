@@ -31,6 +31,7 @@ import { useAppDispatch, useAppSelector } from '@/redux/hook';
 import { toggleTheme } from '@/redux/slice/themeSlice';
 import { clearUser } from '@/redux/slice/authSlice';
 import { useLogoutMutation } from '@/redux/services/api';
+import { ModeToggle } from './layouts/Mode-toggle';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -41,9 +42,8 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   const dispatch = useAppDispatch();
   const { user } = useAppSelector((state: any) => state.auth);
   const [ logout, {isLoading}]= useLogoutMutation(undefined)
-  const { mode } = useAppSelector((state) => state.theme);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  
+    
 
   // ** handle logout
  const handleLogout = async () => {
@@ -142,18 +142,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 
             <div className="flex items-center gap-3">
               {/* Theme Toggle */}
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={handleThemeToggle}
-                id="theme-toggle"
-              >
-                {mode === 'dark' ? (
-                  <Sun className="h-5 w-5" />
-                ) : (
-                  <Moon className="h-5 w-5" />
-                )}
-              </Button>
+              <ModeToggle />
 
               {/* User Menu */}
               <DropdownMenu>

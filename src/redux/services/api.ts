@@ -256,7 +256,8 @@ export const api = baseApi.injectEndpoints({
        providesTags: ['Stats'],
     }),
 
-      getAllUsers: builder.query<{
+    // 
+    getAllUsers: builder.query<{
           data: {
             enrichedUsers: Array<{
               id: string;
@@ -285,9 +286,8 @@ export const api = baseApi.injectEndpoints({
         }),
         providesTags: ["User"],
       }),
-
   
-      // Updated API endpoint
+    // Updated API endpoint
     getAllAgents: builder.query<{
         data: {
           enrichedAgents: Array<{

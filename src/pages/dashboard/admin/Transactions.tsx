@@ -241,10 +241,10 @@ export default function AdminTransactionsPage() {
                   </Select>
 
                   <div className="flex gap-2">
-                    <Button variant={"outline"} onClick={handleApplyFilters} className="flex-1 !text-white/30 !border-white/20">
+                    <Button variant={"outline"} onClick={handleApplyFilters} className="flex-1 dark:!text-white/30 dark:!border-white/20">
                       Apply
                     </Button>
-                    <Button onClick={handleResetFilters} variant="outline" className="flex-1 !text-white/30 !border-white/20">
+                    <Button onClick={handleResetFilters} variant="outline" className="flex-1 dark:!text-white/30 dark:!border-white/20">
                       Reset
                     </Button>
                   </div>
@@ -332,7 +332,7 @@ export default function AdminTransactionsPage() {
                       </p>
                       <div className="flex gap-2">
                         <Button
-                         className='!text-white/30'
+                         className='dark:!text-white/30'
                           variant="outline"
                           size="sm"
                           onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
@@ -341,7 +341,7 @@ export default function AdminTransactionsPage() {
                           Previous
                         </Button>
                         <Button
-                          className='!text-white/30'
+                          className='dark:!text-white/30'
                           variant="outline"
                           size="sm"
                           onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}

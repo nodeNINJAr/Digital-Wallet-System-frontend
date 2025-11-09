@@ -111,10 +111,10 @@ export default function UserDashboard() {
           {/* Welcome */}
         <div className='flex'>
             <div>
-            <h1 className="text-3xl font-bold">Welcome back, {user?.name}!</h1>
+            <h1 className="text-xl font-bold">Welcome back, {user?.name}!</h1>
             <p className="text-muted-foreground">Here's what's happening with your wallet today.</p>
           </div>
-          <Button onClick={handleStartTour} variant="outline" className="gap-2 bg-white/40">
+          <Button onClick={handleStartTour} variant="outline" className="gap-2 dark:bg-white/40">
             <PlayCircle className="h-4 w-4" />
             Start Tour
           </Button>
@@ -161,10 +161,10 @@ export default function UserDashboard() {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <Link to="/dashboard/user/send"><Button className="w-full h-24 flex flex-col gap-2 !text-white/40"><Send className="h-6 w-6" /> Send Money</Button></Link>
-                <Link to="/dashboard/user/deposit"><Button variant="outline" className="w-full h-24 flex flex-col gap-2 !text-white/40"><Plus className="h-6 w-6" /> Deposit</Button></Link>
-                <Link to="/dashboard/user/withdraw"><Button variant="outline" className="w-full h-24 flex flex-col gap-2 !text-white/40"><Minus className="h-6 w-6" /> Withdraw</Button></Link>
-                <Link to="/dashboard/user/transactions"><Button variant="outline" className="w-full h-24 flex flex-col gap-2 !text-white/40"><ArrowUpRight className="h-6 w-6" /> View All</Button></Link>
+                <Link to="/dashboard/user/send"><Button variant="outline" className="w-full h-24 flex flex-col gap-2 dark:!text-white/40"><Send className="h-6 w-6" /> Send Money</Button></Link>
+                <Link to="/dashboard/user/deposit"><Button variant="outline" className="w-full h-24 flex flex-col gap-2 dark:!text-white/40"><Plus className="h-6 w-6" /> Deposit</Button></Link>
+                <Link to="/dashboard/user/withdraw"><Button variant="outline" className="w-full h-24 flex flex-col gap-2 dark:!text-white/40"><Minus className="h-6 w-6" /> Withdraw</Button></Link>
+                <Link to="/dashboard/user/transactions"><Button variant="outline" className="w-full h-24 flex flex-col gap-2 dark:!text-white/40"><ArrowUpRight className="h-6 w-6" /> View All</Button></Link>
               </div>
             </CardContent>
           </Card>

@@ -366,7 +366,7 @@ console.log(data);
                     variant={page === i + 1 ? 'default' : 'outline'}
                     size="sm"
                     onClick={() => setPage(i + 1)}
-                    className="w-10"
+                    className="w-10 bg-gray-600"
                   >
                     {i + 1}
                   </Button>

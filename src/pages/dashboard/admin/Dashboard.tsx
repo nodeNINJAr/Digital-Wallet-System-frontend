@@ -95,8 +95,8 @@ const  recentActivity = RecentAc?.data;
                 Manage users, agents, and monitor system performance
               </p>
             </div>
-            <Button onClick={handleStartTour} variant="outline" className="gap-2">
-              <PlayCircle className="h-4 w-4" />
+            <Button onClick={handleStartTour} variant="outline" className="gap-2 dark:!border-white/60 dark:text-white/60">
+              <PlayCircle className="h-4 w-4 " />
               Start Tour
             </Button>
           </div>

@@ -271,7 +271,7 @@ export default function CashServicePage() {
                         <Button
                           variant={"outline"}
                           onClick={form.handleSubmit(onSubmit)}
-                          className="w-full !text-white/70 !border-white/20"
+                          className="w-full dark:!text-white/70 dark:!border-white/20"
                           disabled={isProcessing || !selectedUser}
                         >
                           {isProcessing ? (
@@ -294,7 +294,7 @@ export default function CashServicePage() {
 
                         <Button
                           variant="outline"
-                          className="w-full !text-white/70 !border-white/20"
+                          className="w-full dark:!text-white/70 dark:!border-white/20"
                           onClick={() => navigate(-1)}
                           disabled={isProcessing}
                         >

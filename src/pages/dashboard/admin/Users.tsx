@@ -158,7 +158,7 @@ export default function ManageUsersPage() {
                       <SelectItem value="initial">Initial</SelectItem> {/* ✅ Fixed */}
                     </SelectContent>
                   </Select>
-                <Button variant={"outline"} className='!text-white/80 !border-white/40' onClick={handleApplyFilters}>Apply</Button>
+                <Button variant={"outline"} className='dark:!text-white/80 dark:!border-white/40' onClick={handleApplyFilters}>Apply</Button>
               </div>
             </CardContent>
           </Card>
@@ -261,7 +261,7 @@ export default function ManageUsersPage() {
                   </p>
                   <div className="flex gap-2">
                     <Button
-                      className='!text-white/40'
+                      className='dark:!text-white/40'
                       variant="outline"
                       size="sm"
                       onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
@@ -271,7 +271,7 @@ export default function ManageUsersPage() {
                     </Button>
                     <Button
                       variant="outline"
-                      className='!text-white/40'
+                      className='dark:!text-white/40'
                       size="sm"
                       onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
                       disabled={page === totalPages}

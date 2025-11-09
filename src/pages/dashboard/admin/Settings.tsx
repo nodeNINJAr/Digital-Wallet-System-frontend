@@ -67,7 +67,7 @@ export default function AdminSettingsPage() {
   };
 
   return (
-    // <ProtectedRoute allowedRoles={['admin']}>
+    <ProtectedRoute allowedRoles={['admin']}>
       <DashboardLayout>
         <div className="space-y-6">
           {/* Header */}
@@ -78,7 +78,7 @@ export default function AdminSettingsPage() {
                 Configure transaction fees, limits, and system parameters
               </p>
             </div>
-            <Button onClick={handleResetDefaults} variant="outline" className="gap-2">
+            <Button onClick={handleResetDefaults} variant="outline" className="gap-2 dark:!border-white/40 dark:text-white/50">
               <RefreshCw className="h-4 w-4" />
               Reset to Defaults
             </Button>
@@ -158,7 +158,7 @@ export default function AdminSettingsPage() {
               <Separator />
 
               <div className="flex justify-end">
-                <Button onClick={handleSaveFees} disabled={loading}>
+                <Button className='dark:bg-white bg-black' onClick={handleSaveFees} disabled={loading}>
                   <Save className="h-4 w-4 mr-2" />
                   {loading ? 'Saving...' : 'Save Fee Settings'}
                 </Button>
@@ -236,7 +236,7 @@ export default function AdminSettingsPage() {
               <Separator />
 
               <div className="flex justify-end">
-                <Button onClick={handleSaveLimits} disabled={loading}>
+                <Button className='dark:bg-white bg-black' onClick={handleSaveLimits} disabled={loading}>
                   <Save className="h-4 w-4 mr-2" />
                   {loading ? 'Saving...' : 'Save Limit Settings'}
                 </Button>
@@ -286,7 +286,7 @@ export default function AdminSettingsPage() {
               <Separator />
 
               <div className="flex justify-end">
-                <Button onClick={handleSaveAgentSettings} disabled={loading}>
+                <Button className='dark:bg-white bg-black' onClick={handleSaveAgentSettings} disabled={loading}>
                   <Save className="h-4 w-4 mr-2" />
                   {loading ? 'Saving...' : 'Save Agent Settings'}
                 </Button>
@@ -325,6 +325,6 @@ export default function AdminSettingsPage() {
           </Card>
         </div>
       </DashboardLayout>
-    /* </ProtectedRoute> */
+    </ProtectedRoute> 
   );
 }

@@ -142,20 +142,35 @@ const Navbar = () => {
           </div>
 
            {/* Right side */}
-          <div className="flex items-center gap-2">
-              <ModeToggle/>
-                   <Avatar>
-                   {user ? <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
-                    :<AvatarFallback>CN</AvatarFallback>}
-                  </Avatar>
-             { !user ? <Button asChild variant="outline" size="sm" className="text-sm">
-                <Link to="/auth/login">Sign In</Link>
-              </Button> :
-              <Button variant={"ghost"} onClick={handleLogout} className="cursor-pointer text-destructive flex justify-center align-middle items-center">
-                <LogOut className="mr-2 h-4 w-4" />
-                  {isLoading ? "Logging out..." : "Logout"}
-              </Button>}
-          </div>
+            <div className="flex items-center gap-2">
+                <ModeToggle />
+                
+                <Avatar>
+                  {user ? (
+                    <Link className="cursor-pointer" to={`/dashboard/${user?.role}`}>
+                      <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
+                    </Link>
+                  ) : (
+                    <AvatarFallback>CN</AvatarFallback>
+                  )}
+                </Avatar>
+                
+                {!user ? (
+                  <Button asChild variant="outline" size="sm" className="text-sm">
+                    <Link to="/auth/login">Sign In</Link>
+                  </Button>
+                ) : (
+                  <Button 
+                    variant="ghost" 
+                    onClick={handleLogout} 
+                    disabled={isLoading}
+                    className="cursor-pointer text-destructive flex justify-center items-center"
+                  >
+                    <LogOut className="mr-2 h-4 w-4" />
+                    {isLoading ? "Logging out..." : "Logout"}
+                  </Button>
+                )}
+            </div>
 
           {/* Mobile Menu Button */}
           <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
@@ -202,18 +217,33 @@ const Navbar = () => {
                 <Separator className="my-4" />
                {/* Right side */}
                   <div className="flex items-center gap-2">
-                      <ModeToggle/>
-                          <Avatar>
-                          {user ? <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
-                            :<AvatarFallback>CN</AvatarFallback>}
-                          </Avatar>
-                    { !user ? <Button asChild variant="outline" size="sm" className="text-sm">
+                    <ModeToggle />
+                    
+                    <Avatar>
+                      {user ? (
+                        <Link className="cursor-pointer" to={`/dashboard/${user?.role}`}>
+                          <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
+                        </Link>
+                      ) : (
+                        <AvatarFallback>CN</AvatarFallback>
+                      )}
+                    </Avatar>
+                    
+                    {!user ? (
+                      <Button asChild variant="outline" size="sm" className="text-sm">
                         <Link to="/auth/login">Sign In</Link>
-                      </Button> :
-                      <Button variant={"ghost"} onClick={handleLogout} className="cursor-pointer text-destructive flex justify-center align-middle items-center">
+                      </Button>
+                    ) : (
+                      <Button 
+                        variant="ghost" 
+                        onClick={handleLogout} 
+                        disabled={isLoading}
+                        className="cursor-pointer text-destructive flex justify-center items-center"
+                      >
                         <LogOut className="mr-2 h-4 w-4" />
-                          {isLoading ? "Logging out..." : "Logout"}
-                      </Button>}
+                        {isLoading ? "Logging out..." : "Logout"}
+                      </Button>
+                    )}
                   </div>
               </div>
             </SheetContent>
