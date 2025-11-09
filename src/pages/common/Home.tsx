@@ -116,7 +116,7 @@ const Home = () => {
   return (
     <div className="pt-16 ">
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-emerald-50 via-blue-50 to-purple-50">
+      <section className="dark:bg-black/10 relative overflow-hidden bg-purple-50">
         <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
         <div className="container mx-auto px-4 py-20 lg:py-32 relative">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
@@ -134,7 +134,7 @@ const Home = () => {
                 <br />
                 Your Way,
                 <br />
-                <span className="text-gray-900">Everywhere</span>
+                <span className="text-gray-900 dark:text-gray-400">Everywhere</span>
               </h1>
               <p className="text-xl text-gray-600 mb-8 max-w-lg">
                 Send money, pay bills, recharge mobile, and manage your finances securely with Bangladesh's leading digital wallet.
@@ -144,7 +144,7 @@ const Home = () => {
                   Get Started Free
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
-                <Button size="lg" variant="outline" className="text-lg px-8 py-6 group">
+                <Button size="lg" variant="outline" className="text-lg px-8 py-6 group dark:bg-gray-400">
                   <Play className="mr-2 h-5 w-5 group-hover:text-emerald-600" />
                   Watch Demo
                 </Button>
@@ -337,7 +337,7 @@ const Home = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-br from-emerald-50 via-blue-50 to-purple-50  dark:bg-[#0a0a0a]">
+      <section className="py-20 bg-purple-50  dark:bg-[#0a0a0a]">
         <div className="container mx-auto px-4 text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -356,7 +356,7 @@ const Home = () => {
                 Create Account Now
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
-              <Button size="lg" variant="outline" className="text-lg px-8 py-6" asChild>
+              <Button size="lg" variant="outline" className="text-lg px-8 py-6 border-black/10 dark:!border-white/40" asChild>
                 <Link to="/features">
                   Explore Features
                 </Link>

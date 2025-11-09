@@ -10,9 +10,6 @@ import type {
 } from '@/types';
 import { baseApi } from '../baseApi';
 
-// ============================================
-// 🧩 Interfaces
-// ============================================
 interface Agent {
   _id: string;
   id: string;
@@ -56,8 +53,8 @@ export const api = baseApi.injectEndpoints({
       query: (body) => ({
         url: '/auth/login',
         method: 'POST',
-        body,
-        credentials: 'include',
+        data:body,
+        // credentials: 'include',
       }),
     }),
 
@@ -101,7 +98,7 @@ export const api = baseApi.injectEndpoints({
       query: (body) => ({
         url: '/user/profile',
         method: 'PATCH',
-        body,
+        data:body,
       }),
       invalidatesTags: ['User'],
     }),
@@ -145,14 +142,30 @@ export const api = baseApi.injectEndpoints({
     // **User DASHBOARD STATS
     getDashboardStats: builder.query<DashboardStats, void>({
       query: () => ({
-        url: '/user/dashboard/stats',
+        url: '/dashboard/stats/user',
         method: 'GET',
       }),
       providesTags: ['Stats'],
     }),
 
 
-    //** AGENT CASH SERVICE
+    //** AGENT CASH SERVICE **
+    getUserForAgent: builder.query<AgentsResponse, GetAgentsQuery | void>({
+      query: (params) => {
+        const queryString = new URLSearchParams(
+          Object.entries(params || {}).map(([key, value]) => [key, String(value)])
+        ).toString();
+
+        return {
+          url: `/user?${queryString}`,
+          method: 'GET',
+        };
+      },
+      providesTags: ['Agents'],
+    }),
+   
+
+
     agentCashIn: builder.mutation<Transaction, AgentTransaction>({
       query: (body) => ({
         url: '/transactions/cash-in',
@@ -197,7 +210,7 @@ export const api = baseApi.injectEndpoints({
         if (search) params.append('search', search);
 
         return {
-          url: `/transactions/me?${params.toString()}`,
+          url: `/transactions/all?${params.toString()}`,
           method: 'GET',
         };
       },
@@ -403,6 +416,7 @@ export const {
   //both 
   useGetTransactionsQuery,
   // agent
+  useGetUserForAgentQuery,
   useAgentCashInMutation,
   useGetAgentDashboardStatsQuery,
   useAgentWithdrawMutation,

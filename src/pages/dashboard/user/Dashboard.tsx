@@ -1,16 +1,17 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Wallet, ArrowUpRight, ArrowDownLeft, TrendingUp, Send, Plus, Minus } from 'lucide-react';
+import { Wallet, ArrowUpRight, ArrowDownLeft, TrendingUp, Send, Plus, Minus, PlayCircle } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 import { useAppSelector } from '@/redux/hook';
 import { StatsCard } from '@/components/ui/StatsCard';
 import { Link } from 'react-router';
 import { useGetDashboardStatsQuery, useGetTransactionsQuery } from '@/redux/services/api';
 import { IStatus, IType } from '@/types/interface';
+import { UserTour } from '@/components/ui/UserTour';
 
 
 
@@ -20,7 +21,7 @@ export default function UserDashboard() {
   const { data: transactionsData, isLoading: transactionsLoading } = useGetTransactionsQuery({ page: 1, limit: 10 });
 
   const formatCurrency = (amount: number) =>
-    new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount);
+    new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount );
 
   const formatDate = (date: string) =>
     new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
@@ -53,25 +54,25 @@ export default function UserDashboard() {
   // Prepare chart data
   const chartData = useMemo(() => {
     const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-    const data = months.map((m) => ({ name: m, sent: 0, withdraw: 0 }));
+    const data = months.map((m) => ({ name: m, SEND: 0, CASH_OUT: 0 }));
 
     transactionsData?.data?.transactions.forEach((t) => {
       const date = new Date(t.createdAt);
       const monthIndex = date.getMonth();
       const type = t.type as IType;
-      if ([IType.SEND, IType.WITHDRAW, IType.CASH_OUT].includes(type)) data[monthIndex].sent += t.amount;
-      else data[monthIndex].withdraw += t.amount;
+      if ([IType.SEND, IType.WITHDRAW, IType.CASH_OUT].includes(type)) data[monthIndex].SEND += t.amount;
+      else data[monthIndex].CASH_OUT += t.amount;
     });
 
     return data;
   }, [transactionsData]);
 
   const transactionTypeData = useMemo(() => {
-    const types: IType[] = [IType.SEND, IType.CASH_IN, IType.WITHDRAW, IType.BONUS];
+    const types: IType[] = [IType.SEND, IType.CASH_IN, IType.CASH_OUT, IType.BONUS];
     const colors: Record<IType, string> = {
       [IType.SEND]: '#ef4444',
       [IType.CASH_IN]: '#22c55e',
-      [IType.WITHDRAW]: '#f59e0b',
+      [IType.CASH_OUT]: '#f59e0b',
       [IType.BONUS]: '#a855f7',
     };
 
@@ -83,16 +84,41 @@ export default function UserDashboard() {
     });
   }, [transactionsData]);
    
+     
+        // 
+      const [showTour, setShowTour] = useState(false);
+      // const { mode } = useAppSelector((state) => state.theme);
+     useEffect(() => {
+       // Check if tour has been shown
+       const tourCompleted = localStorage.getItem('user-tour-completed');
+       if (!tourCompleted) {
+         setTimeout(() => setShowTour(true), 1500);
+       }
+     }, []);
+   
+     const handleStartTour = () => {
+       setShowTour(true);
+     };
+
+
+
+
   // 
   return (
     <ProtectedRoute allowedRoles={['user']}>
       <DashboardLayout>
         <div className="space-y-8">
           {/* Welcome */}
-          <div>
+        <div className='flex'>
+            <div>
             <h1 className="text-3xl font-bold">Welcome back, {user?.name}!</h1>
             <p className="text-muted-foreground">Here's what's happening with your wallet today.</p>
           </div>
+          <Button onClick={handleStartTour} variant="outline" className="gap-2 bg-white/40">
+            <PlayCircle className="h-4 w-4" />
+            Start Tour
+          </Button>
+       </div>
 
           {/* Stats */}
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -158,8 +184,8 @@ export default function UserDashboard() {
                     <YAxis />
                     <Tooltip />
                     <Legend />
-                    <Bar dataKey="sent" fill="#ef4444" name="Sent" />
-                    <Bar dataKey="withdraw" fill="#22c55e" name="Withdraw" />
+                    <Bar dataKey="SEND" fill="#ef4444" name="Sent" />
+                    <Bar dataKey="CASH_OUT" fill="#22c55e" name="Cash Out" />
                   </BarChart>
                 </ResponsiveContainer>
               </CardContent>
@@ -227,7 +253,7 @@ export default function UserDashboard() {
                       </div>
                       <div className="text-right">
                         <p className={`font-semibold ${getTransactionColor(t.type)}`}>
-                          {[IType.SEND, IType.WITHDRAW, IType.CASH_OUT].includes(t.type) ? '-' : '+'}{formatCurrency(t.amount)}
+                          {[IType.SEND, IType.WITHDRAW, IType.CASH_OUT].includes(t.type) ? '-' : '+'}{formatCurrency(t.amount / 100)}
                         </p>
                         <Badge variant={t.tranStatus === IStatus.COMPLETED ? 'default' : 'secondary'} className="text-xs">
                           {t.tranStatus}
@@ -240,6 +266,8 @@ export default function UserDashboard() {
             </CardContent>
           </Card>
         </div>
+      {/* Tour Component */}
+      {showTour && <UserTour onComplete={() => setShowTour(false)} />}
       </DashboardLayout>
     </ProtectedRoute>
   );

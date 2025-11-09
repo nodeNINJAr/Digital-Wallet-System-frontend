@@ -20,7 +20,6 @@ const axiosBaseQuery =
     unknown
   > =>
   async ({ url, method, data, params, headers }) => {
-    console.log("form axois base query ", url, method, data, params, headers);
     try {
       const result = await axiosInstance({
         url: baseUrl + url,
@@ -33,7 +32,6 @@ const axiosBaseQuery =
       return { data: result.data }
     } catch (axiosError) {
       const err = axiosError as AxiosError
-      console.log(err);
       return {
         error: {
           status: err.response?.status,

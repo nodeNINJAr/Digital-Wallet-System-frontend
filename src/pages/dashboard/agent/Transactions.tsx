@@ -65,7 +65,7 @@ export default function AgentTransactionsPage() {
     new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
-    }).format(amount);
+    }).format(amount/100);
 
   const formatDate = (date: string) =>
     new Date(date).toLocaleDateString('en-US', {

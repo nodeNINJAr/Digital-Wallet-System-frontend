@@ -61,13 +61,11 @@ export function Login() {
     const password = import.meta.env.VITE_ADMIN_PASS;
     setValue("email", email);
     setValue("password", password);
-
     try {
       const result = await login({ email, password }).unwrap();
       
       // Fixed: Access user from result.data.user (not result.user)
       dispatch(setUser(result?.data?.user));
-      console.log(email, password, result);
       toast.success("Demo login successful!");
       
       // Fixed: Use result.data.user.role (not result.user.role)
@@ -147,7 +145,7 @@ export function Login() {
               {/* Submit */}
               <Button
                 onClick={handleSubmit(onSubmit)}
-                className="w-full !border-gray-400 !text-gray-200"
+                className="w-full dark:!border-gray-400 dark:!text-gray-200 "
                 disabled={isLoading}
                 variant="outline"
               >
@@ -183,7 +181,7 @@ export function Login() {
                   key={email}
                   type="button"
                   variant="outline"
-                  className="w-full"
+                  className="w-full dark:!text-white/60 dark:!border-white/40"
                   onClick={() => handleDemoLogin(email)}
                   disabled={isLoading}
                 >

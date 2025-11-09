@@ -62,7 +62,6 @@ export default function Register() {
     try {
       const { confirmPassword, ...registerData } = data;
       const result = await register(registerData).unwrap();
-       console.log(result,data);
       dispatch(setUser(result));
       toast.success('Account created successfully!');
       navigate("/auth/login");
@@ -203,7 +202,7 @@ export default function Register() {
                 )}
               </div>
 
-              <Button type="submit" className="w-full !border-gray-400 !text-gray-200" disabled={isLoading} variant={"outline"}>
+              <Button type="submit" className="w-full dark:!border-gray-400 dark:!text-gray-200" disabled={isLoading} variant={"outline"}>
                 {isLoading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />

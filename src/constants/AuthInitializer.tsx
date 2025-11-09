@@ -7,7 +7,6 @@ import { useDispatch } from 'react-redux';
 export function AuthInitializer({ children }: { children: React.ReactNode }) {
   const dispatch = useDispatch();
   const { data, error, isLoading } = useVerifyUserQuery();
-  console.log("from auth init", data);
   useEffect(() => {
     if (isLoading) return;
 

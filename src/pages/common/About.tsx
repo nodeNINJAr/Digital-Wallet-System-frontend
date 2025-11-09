@@ -105,7 +105,7 @@ const About = () => {
   return (
     <div className="min-h-screen pt-16">
       {/* Hero Section */}
-      <section className="relative py-20 lg:py-32 bg-gradient-to-br from-emerald-50 via-blue-50 to-purple-50">
+      <section className="relative py-20 lg:py-32 bg-purple-50 dark:bg-black/10">
         <div className="container mx-auto px-4">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <motion.div
@@ -116,7 +116,7 @@ const About = () => {
               <Badge variant="secondary" className="mb-6 bg-emerald-100 text-emerald-700">
                 Our Story
               </Badge>
-              <h1 className="text-4xl md:text-5xl font-bold mb-6 text-black">
+              <h1 className="text-4xl md:text-5xl font-bold mb-6 text-black dark:text-white/80">
                 Empowering Bangladesh Through
                 <span className="text-emerald-600 block">Digital Financial Services</span>
               </h1>
@@ -155,12 +155,12 @@ const About = () => {
               transition={{ duration: 0.8 }}
               viewport={{ once: true }}
             >
-              <Card className="h-full p-8 border-0 shadow-lg bg-gradient-to-br from-emerald-50 to-blue-50 ">
+              <Card className="h-full p-8 border-0 shadow-lg">
                 <div className="flex items-center mb-6">
                   <Target className="h-12 w-12 text-emerald-600 mr-4" />
-                  <h2 className="text-3xl font-bold text-black">Our Mission</h2>
+                  <h2 className="text-3xl font-bold text-black dark:text-white">Our Mission</h2>
                 </div>
-                <p className="text-lg text-gray-700 leading-relaxed">
+                <p className="text-lg text-gray-500 leading-relaxed">
                   To make financial services accessible, affordable, and convenient for every person in Bangladesh, 
                   regardless of their location, income level, or banking status. We believe that everyone deserves 
                   the right to secure and efficient financial services.
@@ -174,12 +174,12 @@ const About = () => {
               transition={{ duration: 0.8, delay: 0.2 }}
               viewport={{ once: true }}
             >
-              <Card className="h-full p-8 border-0 shadow-lg bg-gradient-to-br from-blue-50 to-purple-50">
-                <div className="flex items-center mb-6">
+              <Card className="h-full p-8 border-0 shadow-lg">
+                <div className="flex items-center mb-6 ">
                   <Award className="h-12 w-12 text-blue-600 mr-4" />
-                  <h2 className="text-3xl font-bold text-black">Our Vision</h2>
+                  <h2 className="text-3xl font-bold text-black dark:text-white">Our Vision</h2>
                 </div>
-                <p className="text-lg text-gray-700 leading-relaxed">
+                <p className="text-lg text-gray-500 leading-relaxed">
                   To become the leading digital financial platform in South Asia, driving economic growth through 
                   financial inclusion and innovation. We envision a future where digital payments are as natural 
                   as breathing, enabling prosperity for all.

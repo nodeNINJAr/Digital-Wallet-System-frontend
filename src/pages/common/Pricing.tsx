@@ -187,7 +187,7 @@ const Pricing = () => {
             <Badge variant="secondary" className="mb-6 bg-emerald-100 text-emerald-700">
               💰 Transparent Pricing
             </Badge>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 text-black">
               Simple, Transparent
               <span className="text-emerald-600 block">Pricing</span>
             </h1>
@@ -218,7 +218,7 @@ const Pricing = () => {
       </section>
 
       {/* Pricing Plans */}
-      <section className="py-20 bg-white">
+      <section className="py-20">
         <div className="container mx-auto px-4">
           <div className="grid md:grid-cols-3 gap-8 mb-20">
             {plans.map((plan, index) => (
@@ -321,7 +321,7 @@ const Pricing = () => {
       </section>
 
       {/* Transaction Fees */}
-      <section className="py-20 bg-gray-50">
+      <section className="py-20 ">
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -343,7 +343,7 @@ const Pricing = () => {
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
-                    <tr className="border-b bg-gray-50">
+                    <tr className="border-b bg-gray-50 dark:bg-gray-700">
                       <th className="text-left p-6 font-semibold">Service</th>
                       <th className="text-center p-6 font-semibold">Basic</th>
                       <th className="text-center p-6 font-semibold">Premium</th>
@@ -380,7 +380,7 @@ const Pricing = () => {
       </section>
 
       {/* Additional Services */}
-      <section className="py-20 bg-white">
+      <section className="py-20 ">
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -433,7 +433,7 @@ const Pricing = () => {
       </section>
 
       {/* FAQ Section */}
-      <section className="py-20 bg-gray-50">
+      <section className="py-20">
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -490,7 +490,7 @@ const Pricing = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-br from-emerald-50 via-blue-50 to-purple-50">
+      <section className="py-20 ">
         <div className="container mx-auto px-4 text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -509,7 +509,7 @@ const Pricing = () => {
                 Start Free Trial
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
-              <Button size="lg" variant="outline">
+              <Button size="lg" variant="outline" className='!text-white/60 dark:text-black/20'>
                 Contact Sales
               </Button>
             </div>

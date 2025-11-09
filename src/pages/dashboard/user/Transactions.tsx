@@ -56,6 +56,9 @@ export default function TransactionsPage() {
     dateTo: appliedFilters.dateTo,
   });
 
+console.log(data);
+
+
   const transactions = data?.data?.transactions || [];
   const meta = data?.data?.meta || { totalPages: 1, total: 0 };
   const totalPages = meta.totalPages || 1;

@@ -153,7 +153,7 @@ const Contact = () => {
                   <span className="text-gray-700">98% customer satisfaction rate</span>
                 </div>
               </div>
-            </motion.div>554rdreds
+            </motion.div>
             
             <motion.div
               initial={{ opacity: 0, x: 20 }}

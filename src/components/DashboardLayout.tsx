@@ -122,7 +122,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 items-center justify-between">
             <div className="flex items-center gap-8">
-              <Link to={`/dashboard/${user?.role}`} className="flex items-center gap-2">
+              <Link to={`/`} className="flex items-center gap-2">
                 <Wallet className="h-8 w-8 text-primary" />
                 <span className="text-2xl font-bold">PayWallet</span>
               </Link>

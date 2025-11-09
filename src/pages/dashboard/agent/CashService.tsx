@@ -22,7 +22,7 @@ import { Textarea } from '@/components/ui/textarea';
 import {
   useAgentCashInMutation,
   useAgentWithdrawMutation,
-  useGetAllUsersQuery,
+  useGetUserForAgentQuery,
 } from '@/redux/services/api';
 
 const formSchema = z.object({
@@ -47,10 +47,10 @@ export default function CashServicePage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedUser, setSelectedUser] = useState<any>(null);
 
-  const { data, isLoading: usersLoading } = useGetAllUsersQuery();
+  const { data, isLoading: usersLoading } = useGetUserForAgentQuery();
   const [cashIn, { isLoading: isCashingIn }] = useAgentCashInMutation();
   const [withdrawMoney, { isLoading: isWithdrawing }] = useAgentWithdrawMutation();
-
+   console.log(data)
   const users = data?.data?.users;
   const isProcessing = isCashingIn || isWithdrawing;
 

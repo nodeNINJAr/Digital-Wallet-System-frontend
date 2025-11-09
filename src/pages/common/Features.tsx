@@ -316,7 +316,7 @@ const [loading, setLoading] = useState(true);
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-br from-emerald-50 via-blue-50 to-purple-50 dark:bg-section">
+      <section className="py-20">
         <div className="container mx-auto px-4 text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -324,7 +324,7 @@ const [loading, setLoading] = useState(true);
             transition={{ duration: 0.8 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-3xl md:text-4xl font-bold mb-6 text-muted-foreground">
+            <h2 className="text-3xl md:text-4xl font-bold mb-6">
               Ready to Experience All <span className="text-emerald-600">Features</span>?
             </h2>
             <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
@@ -335,7 +335,7 @@ const [loading, setLoading] = useState(true);
                 Create Free Account
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
-              <Button size="lg" variant="outline">
+              <Button className='!border-gray-600 dark:!border-white/30 dark:text-white/40' size="lg" variant="outline">
                 Download App
               </Button>
             </div>

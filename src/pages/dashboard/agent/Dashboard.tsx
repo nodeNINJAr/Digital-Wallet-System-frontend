@@ -3,12 +3,16 @@ import { DashboardLayout } from '@/components/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Wallet, DollarSign, Users, TrendingUp, Plus, Minus, ArrowUpRight } from 'lucide-react';
+import { Wallet, DollarSign, Users, TrendingUp, Plus, Minus, ArrowUpRight, PlayCircle } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, Legend } from 'recharts';
 import { useAppSelector } from '@/redux/hook';
 import { useGetAgentDashboardStatsQuery, useGetAllTransactionsQuery } from '@/redux/services/api';
 import { StatsCard } from '@/components/ui/StatsCard';
 import { Link } from 'react-router';
+import { useEffect, useState } from 'react';
+import { AgentTour } from '@/components/ui/AgentTour';
+
+
 
 
 // 
@@ -19,7 +23,6 @@ export default function AgentDashboard() {
   const { data:trans, isLoading: transactionsLoading } = useGetAllTransactionsQuery({ page: 1, limit: 5 });
   const transactionsData = trans?.data?.transactions;
   // 
-  console.log(transactionsData,stats);
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -38,9 +41,9 @@ export default function AgentDashboard() {
 
   const getTransactionIcon = (type: string) => {
     switch (type) {
-      case 'cash_in':
+      case 'CASH_IN':
         return <Plus className="h-4 w-4" />;
-      case 'cash_out':
+      case 'CASH_OUT':
         return <Minus className="h-4 w-4" />;
       default:
         return <ArrowUpRight className="h-4 w-4" />;
@@ -49,24 +52,52 @@ export default function AgentDashboard() {
 
   const getTransactionColor = (type: string) => {
     switch (type) {
-      case 'cash_in':
+      case 'CASH_IN':
         return 'text-green-600';
-      case 'cash_out':
+      case 'CASH_OUT':
         return 'text-red-600';
       default:
         return 'text-muted-foreground';
     }
   };
 
+
+
+  const [showTour, setShowTour] = useState(false);
+  // const { mode } = useAppSelector((state) => state.theme);
+
+  useEffect(() => {
+    // Check if tour has been shown
+    const tourCompleted = localStorage.getItem('agent-tour-completed');
+    if (!tourCompleted) {
+      setTimeout(() => setShowTour(true), 1500);
+    }
+  }, []);
+
+  const handleStartTour = () => {
+    setShowTour(true);
+  };
+
+
+
+
+  // 
+
   return (
     <ProtectedRoute allowedRoles={['agent']}>
       <DashboardLayout>
         <div className="space-y-8">
           {/* Welcome Section */}
-          <div>
-            <h1 className="text-3xl font-bold">Agent Dashboard</h1>
-            <p className="text-muted-foreground">Welcome back, {user?.name}! Manage your cash services here.</p>
-          </div>
+           <div className='flex justify-between'>
+              <div>
+              <h1 className="text-3xl font-bold">Agent Dashboard</h1>
+              <p className="text-muted-foreground">Welcome back, {user?.name}! Manage your cash services here.</p>
+            </div>
+            <Button onClick={handleStartTour} variant="outline" className="gap-2 bg-white/40">
+              <PlayCircle className="h-4 w-4" />
+              Start Tour
+            </Button>
+           </div>
 
           {/* Stats Cards */}
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -147,8 +178,8 @@ export default function AgentDashboard() {
                     <YAxis />
                     <Tooltip />
                     <Legend />
-                    <Bar dataKey="cashIn" fill="#22c55e" name="Cash In" />
-                    <Bar dataKey="cashout" fill="#ef4444" name="Cash Out" />
+                    <Bar dataKey="CASH_IN" fill="#22c55e" name="Cash In" />
+                    <Bar dataKey="CASH_OUT" fill="#ef4444" name="Cash Out" />
                   </BarChart>
                 </ResponsiveContainer>
               </CardContent>
@@ -232,6 +263,9 @@ export default function AgentDashboard() {
             </CardContent>
           </Card>
         </div>
+
+        {/* Tour Component */}
+        {showTour && <AgentTour onComplete={() => setShowTour(false)} />}
       </DashboardLayout>
     </ProtectedRoute>
   );
