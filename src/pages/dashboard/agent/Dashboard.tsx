@@ -6,25 +6,20 @@ import { Badge } from '@/components/ui/badge';
 import { Wallet, DollarSign, Users, TrendingUp, Plus, Minus, ArrowUpRight } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, Legend } from 'recharts';
 import { useAppSelector } from '@/redux/hook';
-import { useGetDashboardStatsQuery, useGetTransactionsQuery } from '@/redux/services/api';
+import { useGetAgentDashboardStatsQuery, useGetTransactionsQuery } from '@/redux/services/api';
 import { StatsCard } from '@/components/ui/StatsCard';
 import { Link } from 'react-router';
 
-const chartData = [
-  { name: 'Mon', cashIn: 4000, cashOut: 2400, commission: 160 },
-  { name: 'Tue', cashIn: 3000, cashOut: 1398, commission: 140 },
-  { name: 'Wed', cashIn: 2000, cashOut: 9800, commission: 380 },
-  { name: 'Thu', cashIn: 2780, cashOut: 3908, commission: 220 },
-  { name: 'Fri', cashIn: 1890, cashOut: 4800, commission: 270 },
-  { name: 'Sat', cashIn: 2390, cashOut: 3800, commission: 240 },
-  { name: 'Sun', cashIn: 3490, cashOut: 4300, commission: 290 },
-];
 
+// 
 export default function AgentDashboard() {
   const { user } = useAppSelector((state) => state.auth);
-  const { data: stats, isLoading: statsLoading } = useGetDashboardStatsQuery();
-  const { data: transactionsData, isLoading: transactionsLoading } = useGetTransactionsQuery({ page: 1, limit: 5 });
-
+  const { data, isLoading: statsLoading } = useGetAgentDashboardStatsQuery();
+  const stats = data?.data
+  const { data:trans, isLoading: transactionsLoading } = useGetTransactionsQuery({ page: 1, limit: 5 });
+  const transactionsData = trans?.data?.transactions;
+  // 
+  console.log(transactionsData,stats);
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -77,14 +72,14 @@ export default function AgentDashboard() {
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             <StatsCard
               title="Total Balance"
-              value={formatCurrency(stats?.balance || 25000)}
+              value={formatCurrency(stats?.balance)}
               icon={Wallet}
               description="Available funds"
               isLoading={statsLoading}
             />
             <StatsCard
-              title="Today's Commission"
-              value={formatCurrency(stats?.commission || 3500)}
+              title="Monthly Commission"
+              value={formatCurrency(stats?.monthlyCommission)}
               icon={DollarSign}
               description="Earnings today"
               trend={{ value: 8, isPositive: true }}
@@ -92,14 +87,14 @@ export default function AgentDashboard() {
             />
             <StatsCard
               title="Customers Served"
-              value={stats?.todayTransactions || 45}
+              value={stats?.monthlyTransactionCount}
               icon={Users}
               description="Today's transactions"
               isLoading={statsLoading}
             />
             <StatsCard
               title="This Month"
-              value={formatCurrency(stats?.monthlyRevenue || 125000)}
+              value={formatCurrency(stats?.monthlyCashOut)}
               icon={TrendingUp}
               description="Monthly volume"
               trend={{ value: 15, isPositive: true }}
@@ -116,19 +111,19 @@ export default function AgentDashboard() {
             <CardContent>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 <Link to="/dashboard/agent/cash-service?type=cash-in">
-                  <Button className="w-full h-24 flex flex-col gap-2">
+                  <Button variant={"outline"} className="!border-white/10 !text-white/40 w-full h-24 flex flex-col gap-2">
                     <Plus className="h-6 w-6" />
                     <span>Cash In</span>
                   </Button>
                 </Link>
-                <Link to="/dashboard/agent/cash-service?type=cash-out">
-                  <Button variant="outline" className="w-full h-24 flex flex-col gap-2">
+                <Link to="/dashboard/agent/cash-service?type=withdraw">
+                  <Button variant="outline" className="!border-white/10 !text-white/40 w-full h-24 flex flex-col gap-2">
                     <Minus className="h-6 w-6" />
-                    <span>Cash Out</span>
+                    <span>Withdraw</span>
                   </Button>
                 </Link>
                 <Link to="/dashboard/agent/transactions">
-                  <Button variant="outline" className="w-full h-24 flex flex-col gap-2">
+                  <Button variant="outline" className="!border-white/10 !text-white/40 w-full h-24 flex flex-col gap-2">
                     <ArrowUpRight className="h-6 w-6" />
                     <span>View All</span>
                   </Button>
@@ -146,14 +141,14 @@ export default function AgentDashboard() {
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={chartData}>
+                  <BarChart data={stats?.chartData}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="name" />
                     <YAxis />
                     <Tooltip />
                     <Legend />
                     <Bar dataKey="cashIn" fill="#22c55e" name="Cash In" />
-                    <Bar dataKey="cashOut" fill="#ef4444" name="Cash Out" />
+                    <Bar dataKey="cashout" fill="#ef4444" name="Cash Out" />
                   </BarChart>
                 </ResponsiveContainer>
               </CardContent>
@@ -166,7 +161,7 @@ export default function AgentDashboard() {
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={chartData}>
+                  <LineChart data={stats?.chartData}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="name" />
                     <YAxis />
@@ -187,7 +182,7 @@ export default function AgentDashboard() {
                 <CardDescription>Latest cash services provided</CardDescription>
               </div>
               <Link to="/dashboard/agent/transactions">
-                <Button variant="outline" size="sm">View All</Button>
+                <Button variant="outline" size="sm" className='!border-white/30 !text-white/30'>View All</Button>
               </Link>
             </CardHeader>
             <CardContent>
@@ -208,7 +203,7 @@ export default function AgentDashboard() {
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {transactionsData?.transactions.slice(0, 5).map((transaction) => (
+                  {transactionsData?.slice(0, 5).map((transaction) => (
                     <div
                       key={transaction.id}
                       className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors"

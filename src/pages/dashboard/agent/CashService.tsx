@@ -1,139 +1,119 @@
-import { useState} from 'react';
+import { useState, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { toast } from 'sonner';
+import { Plus, Minus, Loader2, Search, User } from 'lucide-react';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { DashboardLayout } from '@/components/DashboardLayout';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from '@/components/ui/card';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, Minus, Loader2, Search, User } from 'lucide-react';
-import { toast } from 'sonner';
+import {
+  useAgentCashInMutation,
+  useAgentWithdrawMutation,
+  useGetAllUsersQuery,
+} from '@/redux/services/api';
 
+const formSchema = z.object({
+  email: z.string().min(1, 'Please select a user'),
+  amount: z
+    .string()
+    .min(1, 'Amount is required')
+    .refine((val) => !isNaN(parseFloat(val)) && parseFloat(val) > 0, {
+      message: 'Amount must be greater than 0',
+    }),
+  description: z.string().optional(),
+});
 
-
-const MOCK_USERS = [
-  { id: '1', name: 'John Doe', phone: '+1234567890', email: 'user@test.com' },
-  { id: '4', name: 'Alice Johnson', phone: '+1234567893', email: 'alice@test.com' },
-  { id: 'user3', name: 'Robert Brown', phone: '+1234567897', email: 'robert@test.com' },
-  { id: 'user4', name: 'Emily White', phone: '+1234567898', email: 'emily@test.com' },
-];
+type FormValues = z.infer<typeof formSchema>;
 
 export default function CashServicePage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const initialType = searchParams.get('type') === 'cash-out' ? 'cash-out' : 'cash-in';
-  
-  //TODO: Replace RTK Query hooks with your API implementation
-  // For example, using fetch, axios, or React Query
-  const [isAddingMoney, setIsAddingMoney] = useState(false);
-  const [isWithdrawingMoney, setIsWithdrawingMoney] = useState(false);
-  
-  const [activeTab, setActiveTab] = useState(initialType);
-  const [formData, setFormData] = useState({
-    userId: '',
-    amount: '',
-    description: '',
-  });
-  const [selectedUser, setSelectedUser] = useState<any>(null);
+  const initialType = searchParams.get('type') === 'withdraw' ? 'withdraw' : 'cash-in';
+
+  const [activeTab, setActiveTab] = useState<'cash-in' | 'withdraw'>(initialType);
   const [searchQuery, setSearchQuery] = useState('');
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [selectedUser, setSelectedUser] = useState<any>(null);
 
-  const filteredUsers = MOCK_USERS.filter(
-    (user) =>
-      user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.phone.includes(searchQuery) ||
-      user.email.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const { data, isLoading: usersLoading } = useGetAllUsersQuery();
+  const [cashIn, { isLoading: isCashingIn }] = useAgentCashInMutation();
+  const [withdrawMoney, { isLoading: isWithdrawing }] = useAgentWithdrawMutation();
 
-  const validateForm = () => {
-    const newErrors: Record<string, string> = {};
+  const users = data?.data?.users;
+  const isProcessing = isCashingIn || isWithdrawing;
 
-    if (!formData.userId) {
-      newErrors.userId = 'Please select a customer';
-    }
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: { email: '', amount: '', description: '' },
+  });
 
-    if (!formData.amount) {
-      newErrors.amount = 'Amount is required';
-    } else if (parseFloat(formData.amount) <= 0) {
-      newErrors.amount = 'Amount must be greater than 0';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+  const filteredUsers = useMemo(() => {
+    if (!users?.length) return [];
+    return users.filter(
+      (user: any) =>
+        user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        user.phone.includes(searchQuery) ||
+        user.email.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [users, searchQuery]);
 
   const handleUserSelect = (user: any) => {
     setSelectedUser(user);
-    setFormData({ ...formData, userId: user.id });
-    setErrors({ ...errors, userId: '' });
+    form.setValue('email', user.email);
+    form.clearErrors('email');
   };
 
-  // API functions - replace with your actual API calls
-  const addMoney = async (data: any) => {
-    // Replace with your actual API endpoint
-    const response = await fetch('/api/agent/add-money', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    });
-    if (!response.ok) throw new Error('Failed to add money');
-    return response.json();
+  const calculateCommission = (amount: string) => {
+    const numAmount = parseFloat(amount || '0');
+    return Math.round(numAmount * 0.005 * 100) / 100;
   };
 
-  const withdrawMoney = async (data: any) => {
-    // Replace with your actual API endpoint
-    const response = await fetch('/api/agent/withdraw-money', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    });
-    if (!response.ok) throw new Error('Failed to withdraw money');
-    return response.json();
-  };
-
-  const handleSubmit = async (e: React.FormEvent, type: 'add' | 'withdraw') => {
-    e.preventDefault();
-
-    if (!validateForm()) {
-      return;
-    }
-
+  const onSubmit = async (values: FormValues) => {
     try {
-      const setLoading = type === 'add' ? setIsAddingMoney : setIsWithdrawingMoney;
-      setLoading(true);
+      const payload = {
+        to: values.email,
+        amount: parseFloat(values.amount),
+        description: values.description || undefined,
+      };
+      if (activeTab === 'cash-in') {
+        await cashIn(payload).unwrap();
+        toast.success('Cash In completed successfully!');
+      } else {
+        await withdrawMoney(payload).unwrap();
+        toast.success('withdraw completed successfully!');
+      }
 
-      const apiCall = type === 'add' ? addMoney : withdrawMoney;
-      await apiCall({
-        userId: formData.userId,
-        amount: parseFloat(formData.amount),
-        type: type === 'add' ? 'add' : 'withdraw',
-        description: formData.description,
-      });
-
-      toast.success(`Cash ${type === 'add' ? 'in' : 'out'} successful!`);
-      setFormData({ userId: '', amount: '', description: '' });
+      form.reset();
       setSelectedUser(null);
       setSearchQuery('');
-      
-      setTimeout(() => {
-        navigate('/dashboard/agent');
-      }, 1500);
-    } catch (error: any) {
-      toast.error(error?.message || `Failed to process cash ${type === 'add' ? 'in' : 'out'}. Please try again.`);
-    } finally {
-      const setLoading = type === 'add' ? setIsAddingMoney : setIsWithdrawingMoney;
-      setLoading(false);
+      setTimeout(() => navigate('/dashboard/agent'), 1500);
+    } catch (err: any) {
+      toast.error(err?.data?.message || 'Transaction failed. Please try again.');
     }
   };
 
-  const calculateCommission = () => {
-    const amount = parseFloat(formData.amount) || 0;
-    return Math.round(amount * 0.005 * 100) / 100; // 0.5% commission
+  const handleTabChange = (value: string) => {
+    setActiveTab(value as 'cash-in' | 'withdraw');
+    form.reset();
+    setSelectedUser(null);
+    setSearchQuery('');
   };
 
-  const isLoading = isAddingMoney || isWithdrawingMoney;
+  const currentAmount = form.watch('amount');
+  const commission = calculateCommission(currentAmount);
+  const showSummary = currentAmount && parseFloat(currentAmount) > 0;
 
   return (
     <ProtectedRoute allowedRoles={['agent']}>
@@ -141,28 +121,28 @@ export default function CashServicePage() {
         <div className="max-w-6xl mx-auto space-y-6">
           <div>
             <h1 className="text-3xl font-bold">Cash Service</h1>
-            <p className="text-muted-foreground">Provide cash in/out services to customers</p>
+            <p className="text-muted-foreground">
+              Perform cash in and cash out transactions for customers
+            </p>
           </div>
 
-          <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <Tabs value={activeTab} onValueChange={handleTabChange}>
             <TabsList className="grid w-full max-w-md grid-cols-2">
               <TabsTrigger value="cash-in">
-                <Plus className="h-4 w-4 mr-2" />
-                Cash In
+                <Plus className="h-4 w-4 mr-2" /> Cash In
               </TabsTrigger>
               <TabsTrigger value="cash-out">
-                <Minus className="h-4 w-4 mr-2" />
-                Cash Out
+                <Minus className="h-4 w-4 mr-2" /> Withdraw
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="cash-in" className="space-y-6">
+            <TabsContent value={activeTab} className="space-y-6">
               <div className="grid md:grid-cols-2 gap-6">
-                {/* User Selection */}
+                {/* User Selection Card */}
                 <Card>
                   <CardHeader>
                     <CardTitle>Select Customer</CardTitle>
-                    <CardDescription>Search and select the customer</CardDescription>
+                    <CardDescription>Search and select a user for the transaction</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="relative">
@@ -172,67 +152,82 @@ export default function CashServicePage() {
                         className="pl-9"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
+                        disabled={isProcessing}
                       />
                     </div>
 
                     <div className="space-y-2 max-h-96 overflow-y-auto">
-                      {filteredUsers.map((user) => (
-                        <button
-                          key={user.id}
-                          onClick={() => handleUserSelect(user)}
-                          className={`w-full text-left p-4 rounded-lg border-2 transition-all hover:border-primary/50 ${
-                            selectedUser?.id === user.id
-                              ? 'border-primary bg-primary/5'
-                              : 'border-border'
-                          }`}
-                        >
-                          <div className="flex items-center gap-3">
-                            <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
-                              <User className="h-5 w-5" />
+                      {usersLoading ? (
+                        <div className="text-center py-8">
+                          <Loader2 className="h-6 w-6 animate-spin mx-auto mb-2 text-muted-foreground" />
+                          <p className="text-sm text-muted-foreground">Loading users...</p>
+                        </div>
+                      ) : filteredUsers.length > 0 ? (
+                        filteredUsers.map((user) => (
+                          <button
+                            key={user.id}
+                            type="button"
+                            onClick={() => handleUserSelect(user)}
+                            disabled={isProcessing}
+                            className={`w-full text-left p-4 rounded-lg border-2 transition-all hover:border-primary/50 disabled:opacity-50 disabled:cursor-not-allowed ${
+                              selectedUser?.id === user.id
+                                ? 'border-primary bg-primary/5'
+                                : 'border-border'
+                            }`}
+                          >
+                            <div className="flex items-center gap-3">
+                              <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
+                                <User className="h-5 w-5" />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="font-semibold truncate">{user.name}</p>
+                                <p className="text-sm text-muted-foreground">{user.phone}</p>
+                                <p className="text-xs text-muted-foreground truncate">
+                                  {user.email}
+                                </p>
+                              </div>
                             </div>
-                            <div>
-                              <p className="font-semibold">{user.name}</p>
-                              <p className="text-sm text-muted-foreground">{user.phone}</p>
-                              <p className="text-xs text-muted-foreground">{user.email}</p>
-                            </div>
-                          </div>
-                        </button>
-                      ))}
+                          </button>
+                        ))
+                      ) : (
+                        <div className="text-center py-8">
+                          <p className="text-sm text-muted-foreground">
+                            {searchQuery ? 'No users found matching your search.' : 'No users available.'}
+                          </p>
+                        </div>
+                      )}
                     </div>
-
-                    {errors.userId && (
-                      <p className="text-sm text-destructive">{errors.userId}</p>
-                    )}
                   </CardContent>
                 </Card>
 
-                {/* Cash In Form */}
+                {/* Transaction Form Card */}
                 <Card>
                   <CardHeader>
-                    <CardTitle>Cash In Details</CardTitle>
+                    <CardTitle>
+                      {activeTab === 'cash-in' ? 'Cash In Details' : 'Withdraw Details'}
+                    </CardTitle>
                     <CardDescription>
                       {selectedUser
-                        ? `Adding money to ${selectedUser.name}'s wallet`
-                        : 'Select a customer first'}
+                        ? `Transaction for ${selectedUser.name}`
+                        : 'Select a customer to continue'}
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <form onSubmit={(e) => handleSubmit(e, 'add')} className="space-y-6">
+                    <div className="space-y-6">
                       <div className="space-y-2">
                         <Label htmlFor="amount">Amount (USD)</Label>
                         <Input
                           id="amount"
                           type="number"
                           step="0.01"
-                          min="0"
                           placeholder="0.00"
-                          value={formData.amount}
-                          onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-                          className={errors.amount ? 'border-destructive' : ''}
-                          disabled={!selectedUser}
+                          {...form.register('amount')}
+                          disabled={!selectedUser || isProcessing}
                         />
-                        {errors.amount && (
-                          <p className="text-sm text-destructive">{errors.amount}</p>
+                        {form.formState.errors.amount && (
+                          <p className="text-sm text-destructive">
+                            {form.formState.errors.amount.message}
+                          </p>
                         )}
                       </div>
 
@@ -240,196 +235,54 @@ export default function CashServicePage() {
                         <Label htmlFor="description">Note (Optional)</Label>
                         <Textarea
                           id="description"
-                          placeholder="Add a note..."
-                          value={formData.description}
-                          onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                          placeholder="Add a note about this transaction..."
                           rows={3}
-                          disabled={!selectedUser}
+                          {...form.register('description')}
+                          disabled={!selectedUser || isProcessing}
                         />
                       </div>
 
-                      {formData.amount && parseFloat(formData.amount) > 0 && (
+                      {showSummary && (
                         <Card className="bg-muted/50">
                           <CardContent className="pt-6">
-                            <div className="space-y-2">
-                              <div className="flex justify-between text-sm">
-                                <span>Amount to Add:</span>
-                                <span className="font-medium">${parseFloat(formData.amount).toFixed(2)}</span>
+                            <div className="space-y-2 text-sm">
+                              <div className="flex justify-between">
+                                <span className="text-muted-foreground">Amount:</span>
+                                <span className="font-medium">
+                                  ${parseFloat(currentAmount).toFixed(2)}
+                                </span>
                               </div>
-                              <div className="flex justify-between text-sm text-green-600">
+                              <div className="flex justify-between text-green-600">
                                 <span>Your Commission (0.5%):</span>
-                                <span className="font-medium">${calculateCommission().toFixed(2)}</span>
-                              </div>
-                              <div className="flex justify-between pt-2 border-t font-semibold">
-                                <span>Customer Receives:</span>
-                                <span className="text-lg">${parseFloat(formData.amount).toFixed(2)}</span>
+                                <span className="font-medium">+${commission.toFixed(2)}</span>
                               </div>
                             </div>
                           </CardContent>
                         </Card>
                       )}
 
+                      {form.formState.errors.email && (
+                        <p className="text-sm text-destructive">
+                          {form.formState.errors.email.message}
+                        </p>
+                      )}
+
                       <div className="space-y-3">
                         <Button
-                          type="submit"
-                          className="w-full"
-                          disabled={isLoading || !selectedUser}
+                          variant={"outline"}
+                          onClick={form.handleSubmit(onSubmit)}
+                          className="w-full !text-white/70 !border-white/20"
+                          disabled={isProcessing || !selectedUser}
                         >
-                          {isLoading ? (
+                          {isProcessing ? (
                             <>
                               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                               Processing...
                             </>
-                          ) : (
+                          ) : activeTab === 'cash-in' ? (
                             <>
                               <Plus className="mr-2 h-4 w-4" />
                               Complete Cash In
-                            </>
-                          )}
-                        </Button>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          className="w-full"
-                          onClick={() => navigate(-1)}
-                          disabled={isLoading}
-                        >
-                          Cancel
-                        </Button>
-                      </div>
-                    </form>
-                  </CardContent>
-                </Card>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="cash-out" className="space-y-6">
-              <div className="grid md:grid-cols-2 gap-6">
-                {/* User Selection */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Select Customer</CardTitle>
-                    <CardDescription>Search and select the customer</CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="relative">
-                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        placeholder="Search by name, phone or email..."
-                        className="pl-9"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                      />
-                    </div>
-
-                    <div className="space-y-2 max-h-96 overflow-y-auto">
-                      {filteredUsers.map((user) => (
-                        <button
-                          key={user.id}
-                          onClick={() => handleUserSelect(user)}
-                          className={`w-full text-left p-4 rounded-lg border-2 transition-all hover:border-primary/50 ${
-                            selectedUser?.id === user.id
-                              ? 'border-primary bg-primary/5'
-                              : 'border-border'
-                          }`}
-                        >
-                          <div className="flex items-center gap-3">
-                            <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
-                              <User className="h-5 w-5" />
-                            </div>
-                            <div>
-                              <p className="font-semibold">{user.name}</p>
-                              <p className="text-sm text-muted-foreground">{user.phone}</p>
-                              <p className="text-xs text-muted-foreground">{user.email}</p>
-                            </div>
-                          </div>
-                        </button>
-                      ))}
-                    </div>
-
-                    {errors.userId && (
-                      <p className="text-sm text-destructive">{errors.userId}</p>
-                    )}
-                  </CardContent>
-                </Card>
-
-                {/* Cash Out Form */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Cash Out Details</CardTitle>
-                    <CardDescription>
-                      {selectedUser
-                        ? `Withdrawing from ${selectedUser.name}'s wallet`
-                        : 'Select a customer first'}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <form onSubmit={(e) => handleSubmit(e, 'withdraw')} className="space-y-6">
-                      <div className="space-y-2">
-                        <Label htmlFor="amount-out">Amount (USD)</Label>
-                        <Input
-                          id="amount-out"
-                          type="number"
-                          step="0.01"
-                          min="0"
-                          placeholder="0.00"
-                          value={formData.amount}
-                          onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-                          className={errors.amount ? 'border-destructive' : ''}
-                          disabled={!selectedUser}
-                        />
-                        {errors.amount && (
-                          <p className="text-sm text-destructive">{errors.amount}</p>
-                        )}
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="description-out">Note (Optional)</Label>
-                        <Textarea
-                          id="description-out"
-                          placeholder="Add a note..."
-                          value={formData.description}
-                          onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                          rows={3}
-                          disabled={!selectedUser}
-                        />
-                      </div>
-
-                      {formData.amount && parseFloat(formData.amount) > 0 && (
-                        <Card className="bg-muted/50">
-                          <CardContent className="pt-6">
-                            <div className="space-y-2">
-                              <div className="flex justify-between text-sm">
-                                <span>Withdrawal Amount:</span>
-                                <span className="font-medium">${parseFloat(formData.amount).toFixed(2)}</span>
-                              </div>
-                              <div className="flex justify-between text-sm">
-                                <span>Transaction Fee (0.5%):</span>
-                                <span className="font-medium">${calculateCommission().toFixed(2)}</span>
-                              </div>
-                              <div className="flex justify-between text-sm text-green-600">
-                                <span>Your Commission:</span>
-                                <span className="font-medium">${calculateCommission().toFixed(2)}</span>
-                              </div>
-                              <div className="flex justify-between pt-2 border-t font-semibold">
-                                <span>Cash to Dispense:</span>
-                                <span className="text-lg">${parseFloat(formData.amount).toFixed(2)}</span>
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      )}
-
-                      <div className="space-y-3">
-                        <Button
-                          type="submit"
-                          className="w-full"
-                          disabled={isLoading || !selectedUser}
-                        >
-                          {isLoading ? (
-                            <>
-                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                              Processing...
                             </>
                           ) : (
                             <>
@@ -438,17 +291,17 @@ export default function CashServicePage() {
                             </>
                           )}
                         </Button>
+
                         <Button
-                          type="button"
                           variant="outline"
-                          className="w-full"
+                          className="w-full !text-white/70 !border-white/20"
                           onClick={() => navigate(-1)}
-                          disabled={isLoading}
+                          disabled={isProcessing}
                         >
                           Cancel
                         </Button>
                       </div>
-                    </form>
+                    </div>
                   </CardContent>
                 </Card>
               </div>

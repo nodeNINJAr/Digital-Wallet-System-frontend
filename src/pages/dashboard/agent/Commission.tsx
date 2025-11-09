@@ -50,11 +50,11 @@ export default function CommissionPage() {
         <div className="space-y-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold">Commission Tracking</h1>
+              <h1 className="text-3xl font-bold">Commission Tracking <span className='text-red-500 text-xl'>Its currently in under constructions</span></h1>
               <p className="text-muted-foreground">Monitor your earnings and performance</p>
             </div>
-            <Button variant="outline">
-              <Download className="h-4 w-4 mr-2" />
+            <Button variant="outline" className='!border-white/30 !text-white/30'>
+              <Download className="h-4 w-4 mr-2 " />
               Export Report
             </Button>
           </div>

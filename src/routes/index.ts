@@ -27,7 +27,6 @@ import AgentDashboard from '@/pages/dashboard/agent/Dashboard';
 import CommissionPage from '@/pages/dashboard/agent/Commission';
 import AgentProfilePage from '@/pages/dashboard/agent/Profile';
 import CashServicePage from '@/pages/dashboard/agent/CashService';
-import AgentTransactionsPage from '@/pages/dashboard/agent/Transactions';
 
 // Admin Dashboard pages
 import AdminDashboard from '@/pages/dashboard/admin/Dashboard';
@@ -35,6 +34,7 @@ import ManageUsersPage from '@/pages/dashboard/admin/Users';
 import AdminTransactionsPage from '@/pages/dashboard/admin/Transactions';
 import AdminSettingsPage from '@/pages/dashboard/admin/Settings';
 import ManageAgentsPage from '@/pages/dashboard/admin/Agents';
+import AgentTransactionsPage from '@/pages/dashboard/agent/Transactions';
 
 export const router = createBrowserRouter([
   {

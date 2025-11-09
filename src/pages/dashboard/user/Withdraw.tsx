@@ -8,7 +8,7 @@ import { Minus, Loader2, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router';
 import { useAppSelector } from '@/redux/hook';
-import { useWithdrawMoneyMutation } from '@/redux/services/api';
+import { useCashOutMutation } from '@/redux/services/api';
 import { useForm } from 'react-hook-form';
 
 interface WithdrawFormType {
@@ -19,7 +19,7 @@ interface WithdrawFormType {
 export default function WithdrawMoneyPage() {
   const navigate = useNavigate();
   const { user } = useAppSelector((state) => state.auth);
-  const [withdrawMoney, { isLoading }] = useWithdrawMoneyMutation();
+  const [withdrawMoney, { isLoading }] = useCashOutMutation();
   const currentBalance = user?.walletBalance || 5000;
 
   const {

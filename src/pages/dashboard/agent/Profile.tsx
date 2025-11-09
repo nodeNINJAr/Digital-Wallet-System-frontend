@@ -1,5 +1,3 @@
-'use client';
-
 import { useState } from 'react';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { DashboardLayout } from '@/components/DashboardLayout';
@@ -11,11 +9,12 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { User, Mail, Phone, Lock, Loader2, Save, MapPin, Briefcase } from 'lucide-react';
 import { toast } from 'sonner';
-import { useAppDispatch, useAppSelector } from '@/redux/hook';
-import { useUpdateProfileMutation } from '@/redux/services/api';
+import { useAppSelector } from '@/redux/hook';
+import { useGetAgentDashboardStatsQuery, useUpdateProfileMutation } from '@/redux/services/api';
 
 export default function AgentProfilePage() {
-  const dispatch = useAppDispatch();
+   const { data, isLoading: statsLoading } = useGetAgentDashboardStatsQuery();
+   const stats = data?.data
   const { user } = useAppSelector((state) => state.auth);
   const [updateProfile, { isLoading }] = useUpdateProfileMutation();
   
@@ -165,7 +164,7 @@ export default function AgentProfilePage() {
                 <CardTitle className="text-sm font-medium">Total Transactions</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-2xl font-bold">1,245</p>
+                <p className="text-2xl font-bold">{stats?.totalTransactions}</p>
                 <p className="text-xs text-muted-foreground">All time</p>
               </CardContent>
             </Card>
@@ -174,7 +173,7 @@ export default function AgentProfilePage() {
                 <CardTitle className="text-sm font-medium">Total Commission</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-2xl font-bold">$22,700</p>
+                <p className="text-2xl font-bold">${stats?.totalCommission}</p>
                 <p className="text-xs text-muted-foreground">All time earnings</p>
               </CardContent>
             </Card>

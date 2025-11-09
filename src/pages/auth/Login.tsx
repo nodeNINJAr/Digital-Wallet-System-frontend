@@ -13,7 +13,6 @@ import { Wallet, Eye, EyeOff, Loader2 } from "lucide-react";
 import { useAppDispatch } from "@/redux/hook";
 import { setUser } from "@/redux/slice/authSlice";
 
-
 // zod schema
 const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -22,7 +21,7 @@ const loginSchema = z.object({
 
 type LoginFormType = z.infer<typeof loginSchema>;
 
-//
+// Get role-based route
 const getRoleRoute = (role: string): string => {
   const routes: Record<string, string> = {
     user: "/dashboard/user",
@@ -32,29 +31,23 @@ const getRoleRoute = (role: string): string => {
   return routes[role] || "/dashboard";
 };
 
-
-
-// 
 export function Login() {
-  // 
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
   const [showPassword, setShowPassword] = useState(false);
   const [login, { isLoading }] = useLoginMutation();
-  // 
+  
   const { register, handleSubmit, formState: { errors }, setValue } = useForm<LoginFormType>({
     resolver: zodResolver(loginSchema),
     defaultValues: { email: "", password: "" },
   });
 
-  
-  // 
+  // Regular login
   const onSubmit = async (data: LoginFormType) => {
-    // 
     try {
       const result = await login(data).unwrap();
-       dispatch(setUser(result?.data?.user));
+      dispatch(setUser(result?.data?.user));
       toast.success("Login successful!");
       navigate(getRoleRoute(result?.data?.user?.role));
     } catch (error: any) {
@@ -63,28 +56,28 @@ export function Login() {
     }
   };
 
-  
-
-  // demo login
+  // Demo login - fixed version
   const handleDemoLogin = async (email: string) => {
-    const password = "password";
+    const password = import.meta.env.VITE_ADMIN_PASS;
     setValue("email", email);
     setValue("password", password);
 
     try {
       const result = await login({ email, password }).unwrap();
-      dispatch(setUser(result));
       
+      // Fixed: Access user from result.data.user (not result.user)
+      dispatch(setUser(result?.data?.user));
+      console.log(email, password, result);
       toast.success("Demo login successful!");
-      navigate(getRoleRoute(result.user.role));
+      
+      // Fixed: Use result.data.user.role (not result.user.role)
+      navigate(getRoleRoute(result?.data?.user?.role));
     } catch (error: any) {
       toast.error(error?.data?.message || "Demo login failed.");
       console.error(error);
     }
   };
 
-
-  // UI
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-background to-secondary/20 px-4">
       <div className="w-full max-w-md space-y-6">
@@ -104,7 +97,7 @@ export function Login() {
           </CardHeader>
 
           <CardContent>
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <div className="space-y-4">
               {/* Email */}
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
@@ -153,7 +146,7 @@ export function Login() {
 
               {/* Submit */}
               <Button
-                type="submit"
+                onClick={handleSubmit(onSubmit)}
                 className="w-full !border-gray-400 !text-gray-200"
                 disabled={isLoading}
                 variant="outline"
@@ -167,7 +160,7 @@ export function Login() {
                   "Sign In"
                 )}
               </Button>
-            </form>
+            </div>
 
             {/* Divider */}
             <div className="mt-6 relative">
@@ -182,9 +175,9 @@ export function Login() {
             {/* Demo Buttons */}
             <div className="mt-6 space-y-2">
               {[
-                { email: "user@test.com", label: "Demo User Account" },
-                { email: "agent@test.com", label: "Demo Agent Account" },
-                { email: "admin@test.com", label: "Demo Admin Account" },
+                { email: "testuser@gmail.com", label: "Demo User Account" },
+                { email: "testagent@gmail.com", label: "Demo Agent Account" },
+                { email: import.meta.env.VITE_ADMIN_EMAIL, label: "Demo Admin Account" },
               ].map(({ email, label }) => (
                 <Button
                   key={email}
@@ -201,7 +194,7 @@ export function Login() {
 
             {/* Register Link */}
             <p className="mt-6 text-center text-sm text-muted-foreground">
-              Don’t have an account?{" "}
+              Don't have an account?{" "}
               <Link to="/auth/register" className="text-primary hover:underline font-medium">
                 Sign up
               </Link>

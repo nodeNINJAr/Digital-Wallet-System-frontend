@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Plus, Loader2, MapPin, Search, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
-import { useDepositMoneyMutation, useGetAgentsQuery } from '@/redux/services/api';
+import { useCashOutMutation, useGetAgentsQuery } from '@/redux/services/api';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { DashboardLayout } from '@/components/DashboardLayout';
 
@@ -125,7 +125,7 @@ export default function DepositMoneyPage() {
   
   // API Hooks
   const { data: agentsData, isLoading: isLoadingAgents, error: agentsError } = useGetAgentsQuery();
-  const [depositMoney, { isLoading: isDepositing }] = useDepositMoneyMutation();
+  const [depositMoney, { isLoading: isDepositing }] = useCashOutMutation();
   
   // Local State
   const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null);
