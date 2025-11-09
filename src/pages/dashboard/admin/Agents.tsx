@@ -58,9 +58,9 @@ export default function ManageAgentsPage() {
   const agentsData = data?.data;
   const [blockAgentWallet] = useBlockAgentwalletMutation();
   const [activeAgentWallet] = useActiveAgentwalletMutation();
-
+  console.log(data);
   const agents = agentsData?.enrichedAgents || [];
-  const totalPages = agentsData ? Math.ceil(agentsData.total / 10) : 1;
+  const totalPages = data?.data?.meta?.totalPages;
 
   const handleApplyFilters = () => {
     setAppliedFilters(filters);
@@ -236,7 +236,7 @@ export default function ManageAgentsPage() {
               </div>
 
               {/* Pagination */}
-              {totalPages > 1 && (
+              {totalPages >= 1 && (
                 <div className="flex items-center justify-between mt-6">
                   <p className="text-sm text-muted-foreground">
                     Page {page} of {totalPages}

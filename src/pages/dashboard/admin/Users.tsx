@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -30,79 +30,88 @@ import { Search, Filter, Ban, CheckCircle, Eye } from 'lucide-react';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { toast } from 'sonner';
-
-// Mock users data
-const mockUsers = [
-  { id: 1, name: 'John Smith', email: 'john.smith@email.com', phone: '+1234567890', balance: 2450.00, status: 'active', joinedDate: '2024-01-15', transactions: 145 },
-  { id: 2, name: 'Sarah Johnson', email: 'sarah.j@email.com', phone: '+1234567891', balance: 1820.50, status: 'active', joinedDate: '2024-02-20', transactions: 98 },
-  { id: 3, name: 'Michael Brown', email: 'mbrown@email.com', phone: '+1234567892', balance: 3200.75, status: 'active', joinedDate: '2024-01-10', transactions: 203 },
-  { id: 4, name: 'Emma Davis', email: 'emma.davis@email.com', phone: '+1234567893', balance: 0.00, status: 'blocked', joinedDate: '2024-03-05', transactions: 12 },
-  { id: 5, name: 'James Wilson', email: 'jwilson@email.com', phone: '+1234567894', balance: 5420.30, status: 'active', joinedDate: '2023-12-01', transactions: 342 },
-  { id: 6, name: 'Olivia Martinez', email: 'olivia.m@email.com', phone: '+1234567895', balance: 1650.00, status: 'active', joinedDate: '2024-02-14', transactions: 76 },
-  { id: 7, name: 'William Taylor', email: 'wtaylor@email.com', phone: '+1234567896', balance: 890.25, status: 'active', joinedDate: '2024-03-22', transactions: 45 },
-  { id: 8, name: 'Sophia Anderson', email: 'sophia.a@email.com', phone: '+1234567897', balance: 0.00, status: 'blocked', joinedDate: '2024-01-08', transactions: 8 },
-  { id: 9, name: 'Benjamin Thomas', email: 'bthomas@email.com', phone: '+1234567898', balance: 4150.80, status: 'active', joinedDate: '2024-01-25', transactions: 187 },
-  { id: 10, name: 'Isabella Garcia', email: 'isabella.g@email.com', phone: '+1234567899', balance: 2780.40, status: 'active', joinedDate: '2024-02-28', transactions: 134 },
-];
+import {
+  useApproveWalletTypeMutation,
+  useGetAllUsersQuery,
+  useSuspendWalletTypeMutation,
+} from '@/redux/services/api';
 
 export default function ManageUsersPage() {
-  const [users, setUsers] = useState(mockUsers);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
-  const [selectedUser, setSelectedUser] = useState<typeof mockUsers[0] | null>(null);
-  const [actionDialog, setActionDialog] = useState<'block' | 'unblock' | 'view' | null>(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 8;
+  const [page, setPage] = useState(1);
+  const [filters, setFilters] = useState({
+    status: 'all',
+    searchTerm: '',
+  });
+  const [appliedFilters, setAppliedFilters] = useState(filters);
+  const [selectedUser, setSelectedUser] = useState<any>(null);
+  const [actionDialog, setActionDialog] = useState<'view' | 'approved' | 'suspended' | null>(null);
 
-  // Filter and search users
-  const filteredUsers = useMemo(() => {
-    return users.filter((user) => {
-      const matchesSearch =
-        user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        user.phone.includes(searchQuery);
-      
-      const matchesStatus = statusFilter === 'all' || user.status === statusFilter;
+  const { data, isLoading, isError } = useGetAllUsersQuery({
+    page,
+    limit: 10,
+    searchTerm: appliedFilters.searchTerm,
+    agentStatus: appliedFilters.status !== 'all' ? appliedFilters.status : undefined,
+  });
 
-      return matchesSearch && matchesStatus;
-    });
-  }, [users, searchQuery, statusFilter]);
+  const [suspendAgent] = useSuspendWalletTypeMutation();
+  const [approveAgent] = useApproveWalletTypeMutation();
 
-  // Pagination
-  const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
-  const paginatedUsers = filteredUsers.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
-
-  const handleBlockUser = () => {
-    if (!selectedUser) return;
-
-    setUsers((prev) =>
-      prev.map((user) =>
-        user.id === selectedUser.id ? { ...user, status: 'blocked' } : user
-      )
-    );
-    toast.success(`User ${selectedUser.name} has been blocked`);
-    setActionDialog(null);
-    setSelectedUser(null);
+  const usersData = data?.data;
+  const users = usersData || [];
+  const totalPages = data?.meta?.totalPages;
+  const handleApplyFilters = () => {
+    setAppliedFilters(filters);
+    setPage(1);
   };
 
-  const handleUnblockUser = () => {
-    if (!selectedUser) return;
-
-    setUsers((prev) =>
-      prev.map((user) =>
-        user.id === selectedUser.id ? { ...user, status: 'active' } : user
-      )
-    );
-    toast.success(`User ${selectedUser.name} has been unblocked`);
-    setActionDialog(null);
-    setSelectedUser(null);
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'approved':
+      case 'APPROVED':
+        return <Badge className="bg-green-600">APPROVED</Badge>;
+      case 'pending':
+      case 'PENDING':
+        return <Badge className="bg-yellow-600">PENDING</Badge>;
+      case 'suspended':
+      case 'SUSPENDED':
+        return <Badge variant="destructive">SUSPENDED</Badge>;
+      case '':
+        return <Badge variant="outline">INITIAL</Badge>;
+      default:
+        return <Badge>{status}</Badge>;
+    }
   };
+
+  const handleSuspendAgent = async () => {
+
+    if (!selectedUser) return;
+    try {
+      const { message } = await suspendAgent({ userId: selectedUser.userId }).unwrap();
+      toast.success(message || 'User has been Suspended');
+      setActionDialog(null);
+      setSelectedUser(null);
+    } catch (err: any) {
+      toast.error(err?.data?.message || 'Failed to block user');
+    }
+  };
+
+  const handleApproveAgent = async () => {
+    if (!selectedUser) return;
+    try {
+      const { message } = await approveAgent({ userId: selectedUser.userId }).unwrap();
+      toast.success(message || 'User has been promototed to Agent ');
+      setActionDialog(null);
+      setSelectedUser(null);
+    } catch (err: any) {
+      toast.error(err?.data?.message || 'Failed to activate user');
+    }
+  };
+
+  if (isLoading) return <p>Loading users...</p>;
+  if (isError) return <p>Error fetching users</p>;
 
   return (
-    // <ProtectedRoute allowedRoles={['admin']}>
+    <ProtectedRoute allowedRoles={['admin']}>
       <DashboardLayout>
         <div className="space-y-6">
           {/* Header */}
@@ -114,35 +123,36 @@ export default function ManageUsersPage() {
           </div>
 
           {/* Filters */}
-          <Card id="table-filters">
+          <Card>
             <CardContent className="pt-6">
               <div className="flex flex-col sm:flex-row gap-4">
                 <div className="relative flex-1">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
                     placeholder="Search by name, email, or phone..."
-                    value={searchQuery}
-                    onChange={(e) => {
-                      setSearchQuery(e.target.value);
-                      setCurrentPage(1);
-                    }}
+                    value={filters.searchTerm}
+                    onChange={(e) => setFilters({ ...filters, searchTerm: e.target.value })}
                     className="pl-9"
+                    onKeyDown={(e) => e.key === 'Enter' && handleApplyFilters()}
                   />
                 </div>
-                <Select value={statusFilter} onValueChange={(value) => {
-                  setStatusFilter(value);
-                  setCurrentPage(1);
-                }}>
-                  <SelectTrigger className="w-full sm:w-48">
-                    <Filter className="h-4 w-4 mr-2" />
-                    <SelectValue placeholder="Filter by status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Status</SelectItem>
-                    <SelectItem value="active">Active</SelectItem>
-                    <SelectItem value="blocked">Blocked</SelectItem>
-                  </SelectContent>
-                </Select>
+                  <Select
+                    value={filters.status}
+                    onValueChange={(value) => setFilters({ ...filters, status: value })}
+                  >
+                    <SelectTrigger className="w-full sm:w-48">
+                      <Filter className="h-4 w-4 mr-2" />
+                      <SelectValue placeholder="Filter by status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Status</SelectItem>
+                      <SelectItem value="approved">Approved</SelectItem>
+                      <SelectItem value="pending">Pending</SelectItem>
+                      <SelectItem value="suspended">Suspended</SelectItem>
+                      <SelectItem value="initial">Initial</SelectItem> {/* ✅ Fixed */}
+                    </SelectContent>
+                  </Select>
+                <Button variant={"outline"} className='!text-white/80 !border-white/40' onClick={handleApplyFilters}>Apply</Button>
               </div>
             </CardContent>
           </Card>
@@ -150,7 +160,7 @@ export default function ManageUsersPage() {
           {/* Users Table */}
           <Card>
             <CardHeader>
-              <CardTitle>Users ({filteredUsers.length})</CardTitle>
+              <CardTitle>Users ({data?.meta?.total || 0})</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="overflow-x-auto">
@@ -162,31 +172,33 @@ export default function ManageUsersPage() {
                       <TableHead className="text-right">Balance</TableHead>
                       <TableHead className="text-center">Transactions</TableHead>
                       <TableHead className="text-center">Status</TableHead>
+                      <TableHead className="text-center">Agent Status</TableHead>
                       <TableHead className="text-center">Joined</TableHead>
                       <TableHead className="text-center">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {paginatedUsers.map((user) => (
+                    {users.map((user) => (
                       <TableRow key={user.id}>
                         <TableCell>
                           <div>
-                            <p className="font-medium">{user.name}</p>
-                            <p className="text-sm text-muted-foreground">{user.email}</p>
+                            <p className="font-medium">{user.name || 'N/A'}</p>
+                            <p className="text-sm text-muted-foreground">{user.email || 'N/A'}</p>
                           </div>
                         </TableCell>
-                        <TableCell>{user.phone}</TableCell>
+                        <TableCell>{user.phone || 'N/A'}</TableCell>
                         <TableCell className="text-right font-medium">
-                          ${user.balance.toFixed(2)}
+                          ${user.balance?.toFixed(2) || '0.00'}
                         </TableCell>
-                        <TableCell className="text-center">{user.transactions}</TableCell>
-                        <TableCell className="text-center">
-                          <Badge variant={user.status === 'active' ? 'default' : 'destructive'}>
-                            {user.status}
-                          </Badge>
-                        </TableCell>
+                        <TableCell className="text-center">{user.transactions || 0}</TableCell>
+                        <TableCell className="text-center">{getStatusBadge(user.status)}</TableCell>
+                        <TableCell className="text-center">{getStatusBadge(user.agentStatus)}</TableCell>
                         <TableCell className="text-center text-sm text-muted-foreground">
-                          {user.joinedDate}
+                          {user.joinedDate ? new Date(user.joinedDate).toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric'
+                          }) : 'N/A'}
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center justify-center gap-2">
@@ -200,29 +212,33 @@ export default function ManageUsersPage() {
                             >
                               <Eye className="h-4 w-4" />
                             </Button>
-                            {user.status === 'active' ? (
+                            {(user.agentStatus === 'pending' || user.agentStatus  === "APPROVED" ||user.agentStatus  === "suspended" || user.agentStatus  === "approved" || user.agentStatus === 'PENDING') ? (
+                                 <>
                               <Button
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => {
                                   setSelectedUser(user);
-                                  setActionDialog('block');
-                                }}
-                              >
-                                <Ban className="h-4 w-4 text-destructive" />
-                              </Button>
-                            ) : (
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => {
-                                  setSelectedUser(user);
-                                  setActionDialog('unblock');
+                                  setActionDialog("approved");
                                 }}
                               >
                                 <CheckCircle className="h-4 w-4 text-green-600" />
                               </Button>
-                            )}
+
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => {
+                                  setSelectedUser(user);
+                                  setActionDialog("suspended");
+                                }}
+                              >
+                                <Ban className="h-4 w-4 text-destructive" />
+                              </Button>
+                                 </> 
+                             ) : <></>
+                          
+                          } 
                           </div>
                         </TableCell>
                       </TableRow>
@@ -232,27 +248,27 @@ export default function ManageUsersPage() {
               </div>
 
               {/* Pagination */}
-              {totalPages > 1 && (
+              {totalPages >=1 && (
                 <div className="flex items-center justify-between mt-6">
                   <p className="text-sm text-muted-foreground">
-                    Showing {(currentPage - 1) * itemsPerPage + 1} to{' '}
-                    {Math.min(currentPage * itemsPerPage, filteredUsers.length)} of{' '}
-                    {filteredUsers.length} users
+                    Page {page} of {totalPages}
                   </p>
                   <div className="flex gap-2">
                     <Button
+                      className='!text-white/40'
                       variant="outline"
                       size="sm"
-                      onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                      disabled={currentPage === 1}
+                      onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+                      disabled={page === 1}
                     >
                       Previous
                     </Button>
                     <Button
                       variant="outline"
+                      className='!text-white/40'
                       size="sm"
-                      onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-                      disabled={currentPage === totalPages}
+                      onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
+                      disabled={page === totalPages}
                     >
                       Next
                     </Button>
@@ -270,39 +286,14 @@ export default function ManageUsersPage() {
               <DialogTitle>User Details</DialogTitle>
             </DialogHeader>
             {selectedUser && (
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-sm text-muted-foreground">Name</p>
-                    <p className="font-medium">{selectedUser.name}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Status</p>
-                    <Badge variant={selectedUser.status === 'active' ? 'default' : 'destructive'}>
-                      {selectedUser.status}
-                    </Badge>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Email</p>
-                    <p className="font-medium">{selectedUser.email}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Phone</p>
-                    <p className="font-medium">{selectedUser.phone}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Balance</p>
-                    <p className="font-medium">${selectedUser.balance.toFixed(2)}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Transactions</p>
-                    <p className="font-medium">{selectedUser.transactions}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Joined Date</p>
-                    <p className="font-medium">{selectedUser.joinedDate}</p>
-                  </div>
-                </div>
+              <div className="space-y-4 grid grid-cols-2 gap-4">
+                <div><p className="text-sm text-muted-foreground">Name</p><p className="font-medium">{selectedUser.name || 'N/A'}</p></div>
+                <div><p className="text-sm text-muted-foreground">Status</p>{getStatusBadge(selectedUser.status)}</div>
+                <div><p className="text-sm text-muted-foreground">Email</p><p className="font-medium">{selectedUser.email || 'N/A'}</p></div>
+                <div><p className="text-sm text-muted-foreground">Phone</p><p className="font-medium">{selectedUser.phone || 'N/A'}</p></div>
+                <div><p className="text-sm text-muted-foreground">Balance</p><p className="font-medium">${selectedUser.balance?.toFixed(2) || '0.00'}</p></div>
+                <div><p className="text-sm text-muted-foreground">Transactions</p><p className="font-medium">{selectedUser.transactions || 0}</p></div>
+                <div><p className="text-sm text-muted-foreground">Joined Date</p><p className="font-medium">{selectedUser.joinedDate ? new Date(selectedUser.joinedDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : 'N/A'}</p></div>
               </div>
             )}
             <DialogFooter>
@@ -314,45 +305,45 @@ export default function ManageUsersPage() {
         </Dialog>
 
         {/* Block User Dialog */}
-        <Dialog open={actionDialog === 'block'} onOpenChange={() => setActionDialog(null)}>
+        <Dialog open={actionDialog === 'suspended'} onOpenChange={() => setActionDialog(null)}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Block User</DialogTitle>
+              <DialogTitle>Suspend User</DialogTitle>
               <DialogDescription>
-                Are you sure you want to block {selectedUser?.name}? They will not be able to perform any transactions.
+                Are you sure you want to suspend {selectedUser?.name}? They will not be able to perform any transactions.
               </DialogDescription>
             </DialogHeader>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setActionDialog(null)}>
+              <Button className='!text-red-500 !border-white/30' variant="outline" onClick={() => setActionDialog(null)}>
                 Cancel
               </Button>
-              <Button variant="destructive" onClick={handleBlockUser}>
-                Block User
+              <Button  variant="destructive" onClick={handleSuspendAgent}>
+                Suspend User
               </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
 
         {/* Unblock User Dialog */}
-        <Dialog open={actionDialog === 'unblock'} onOpenChange={() => setActionDialog(null)}>
+        <Dialog open={actionDialog === 'approved'} onOpenChange={() => setActionDialog(null)}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Unblock User</DialogTitle>
+              <DialogTitle>Approve User</DialogTitle>
               <DialogDescription>
-                Are you sure you want to unblock {selectedUser?.name}? They will be able to perform transactions again.
+                Are you sure you want to approve {selectedUser?.name}? They will be able to perform transactions again.
               </DialogDescription>
             </DialogHeader>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setActionDialog(null)}>
+              <Button className='!text-red-500 !border-white/30' variant="outline" onClick={() => setActionDialog(null)}>
                 Cancel
               </Button>
-              <Button onClick={handleUnblockUser}>
-                Unblock User
+              <Button variant={"outline"} className='!text-white/40 !border-white/30' onClick={handleApproveAgent}>
+                Approve User
               </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
       </DashboardLayout>
-    /* </ProtectedRoute> */
+    </ProtectedRoute>
   );
 }

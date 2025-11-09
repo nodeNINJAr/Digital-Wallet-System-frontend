@@ -207,46 +207,35 @@ export const api = baseApi.injectEndpoints({
 
 
     // ** ADMIN ENDPOINTS
-    getAllUsers: builder.query<
-      {
-        data: User[];
-        meta: {
-          page: number;
-          limit: number;
-          total: number;
-          totalPages: number;
-        };
-      },
-      {
-        page?: number;
-        limit?: number;
-        searchTerm?: string;
-        sortBy?: string;
-        sortOrder?: "asc" | "desc";
-        filters?: Record<string, string>;
-      }
-    >({
-      query: ({
-        page = 1,
-        limit = 10,
-        searchTerm,
-        sortBy = "createdAt",
-        sortOrder = "desc",
-        filters = {},
-      } = {}) => ({
-        url: "/user/all",
-        method: "GET",
-        params: {
-          page,
-          limit,
-          searchTerm,
-          sortBy,
-          sortOrder,
-          ...filters, // dynamic filters like role, isActive, etc.
+      getAllUsers: builder.query<{
+          data: {
+            enrichedUsers: Array<{
+              id: string;
+              name: string;
+              email: string;
+              phone: string;
+              balance: number;
+              status: string; // This will be agentStatus from user
+              joinedDate: string;
+              transactions: number;
+            }>;
+            total: number;
+          };
         },
+        { page?: number; limit?: number; searchTerm?: string; agentStatus?: string }
+      >({
+        query: ({ page = 1, limit = 25, searchTerm = "", agentStatus } = {}) => ({
+          url: `/user/all`,
+          method: "GET",
+          params: {
+            page,
+            limit,
+            ...(searchTerm && { searchTerm }),
+            ...(agentStatus && { agentStatus }),
+          },
+        }),
+        providesTags: ["User"],
       }),
-      providesTags: ["User"],
-    }),
 
   
       // Updated API endpoint
@@ -294,23 +283,30 @@ export const api = baseApi.injectEndpoints({
         providesTags: ['Agent'],
       }),
 
+
     //** */ updaate wallet type by admin
-    updateWalletType: builder.mutation<
-      {
-        updatedRole: User;
-        walletType: string;
-        message: string;
-      },
-      { userId: string; walletType: string }
+   approveWalletType: builder.mutation<User, { userId: string }
     >({
-      query: ({ userId, walletType }) => ({
+      query: ({ userId }) => ({
         url: `/wallets/agents/${userId}/approve`,
         method: 'PATCH',
-        body: { walletType },
+      }),
+      invalidatesTags: ['User', 'Agent', 'Wallet'],
+    }),
+       
+    // **
+       suspendWalletType: builder.mutation<User, { userId: string }
+    >({
+      query: ({ userId }) => ({
+        url: `/wallets/agents/${userId}/suspend`,
+        method: 'PATCH',
       }),
       invalidatesTags: ['User', 'Agent', 'Wallet'],
     }),
      
+
+
+
 
     // ## block wallet by admin
     blockAgentwallet: builder.mutation<User, { agentId: string }>({
@@ -381,7 +377,8 @@ export const {
   // admin
   useGetAllUsersQuery,
   useGetAllAgentsQuery,
-  useUpdateWalletTypeMutation,
+  useApproveWalletTypeMutation,
+  useSuspendWalletTypeMutation,
   useBlockAgentwalletMutation,
   useActiveAgentwalletMutation,
   useGetAllTransactionsQuery,
