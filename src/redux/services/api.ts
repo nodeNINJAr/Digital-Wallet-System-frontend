@@ -206,36 +206,153 @@ export const api = baseApi.injectEndpoints({
 
 
 
-
-
-
-
     // ** ADMIN ENDPOINTS
-    getAllUsers: builder.query<User[], void>({
-      query: () => ({
-        url: '/user/all',
-        method: 'GET',
+    getAllUsers: builder.query<
+      {
+        data: User[];
+        meta: {
+          page: number;
+          limit: number;
+          total: number;
+          totalPages: number;
+        };
+      },
+      {
+        page?: number;
+        limit?: number;
+        searchTerm?: string;
+        sortBy?: string;
+        sortOrder?: "asc" | "desc";
+        filters?: Record<string, string>;
+      }
+    >({
+      query: ({
+        page = 1,
+        limit = 10,
+        searchTerm,
+        sortBy = "createdAt",
+        sortOrder = "desc",
+        filters = {},
+      } = {}) => ({
+        url: "/user/all",
+        method: "GET",
+        params: {
+          page,
+          limit,
+          searchTerm,
+          sortBy,
+          sortOrder,
+          ...filters, // dynamic filters like role, isActive, etc.
+        },
       }),
-      providesTags: ['User'],
+      providesTags: ["User"],
     }),
 
-    getAllAgents: builder.query<User[], void>({
-      query: () => ({
-        url: '/user/agent',
-        method: 'GET',
+  
+      // Updated API endpoint
+    getAllAgents: builder.query<{
+        data: {
+          enrichedAgents: Array<{
+            id: string;
+            name: string;
+            email: string;
+            phone: string;
+            commission: number;
+            status: string;
+            joinedDate: string;
+            transactions: number;
+          }>;
+          total: number;
+        };
+        meta: {
+          page: number;
+          limit: number;
+          total: number;
+          totalPages: number;
+        };
+      }, {
+        page?: number;
+        limit?: number;
+        searchTerm?: string;
+        status?: string;
+      }>({
+        query: ({ page = 1, limit = 10, searchTerm = "", status }: {
+          page?: number;
+          limit?: number;
+          searchTerm?: string;
+          status?: string;
+        } = {}) => ({
+          url: '/user/agents',
+          method: 'GET',
+          params: {
+            page,
+            limit,
+            ...(searchTerm && { searchTerm }),
+            ...(status && { status }),
+          },
+        }),
+        providesTags: ['Agent'],
       }),
-      providesTags: ['Agent'],
-    }),
-    
-    // 
-    updateUserStatus: builder.mutation<User, { userId: string; status: 'active' | 'blocked' }>({
-      query: ({ userId, status }) => ({
-        url: `/user/${userId}/status`,
+
+    //** */ updaate wallet type by admin
+    updateWalletType: builder.mutation<
+      {
+        updatedRole: User;
+        walletType: string;
+        message: string;
+      },
+      { userId: string; walletType: string }
+    >({
+      query: ({ userId, walletType }) => ({
+        url: `/wallets/agents/${userId}/approve`,
         method: 'PATCH',
-        body: { status },
+        body: { walletType },
+      }),
+      invalidatesTags: ['User', 'Agent', 'Wallet'],
+    }),
+     
+
+    // ## block wallet by admin
+    blockAgentwallet: builder.mutation<User, { agentId: string }>({
+      query: ({ agentId }) => ({
+        url: `/wallets/agents/${agentId}/block`,
+        method: 'PATCH',
       }),
       invalidatesTags: ['User', 'Agent'],
     }),
+    // 
+      ActiveAgentwallet: builder.mutation<User, { agentId: string }>({
+      query: ({ agentId }) => ({
+        url: `/wallets/agents/${agentId}/active`,
+        method: 'PATCH',
+      }),
+      invalidatesTags: ['User', 'Agent'],
+    }),
+
+
+  // **All TRANSACTIONS Admin
+    getAllTransactions: builder.query<
+      { transactions: Transaction[]; meta: { total: number; totalPages: number; page: number; limit: number } },
+      { page?: number; limit?: number; type?: string; status?: string; dateFrom?: string; dateTo?: string; search?: string }
+    >({
+      query: ({ page = 1, limit = 10, type, status, dateFrom, dateTo, search }) => {
+        const params = new URLSearchParams();
+        params.append('page', String(page));
+        params.append('limit', String(limit));
+        if (type) params.append('type', type);
+        if (status) params.append('status', status);
+        if (dateFrom) params.append('dateFrom', dateFrom);
+        if (dateTo) params.append('dateTo', dateTo);
+        if (search) params.append('search', search);
+
+        return {
+          url: `/transactions/all?${params.toString()}`,
+          method: 'GET',
+        };
+      },
+      providesTags: ['Transaction'],
+    }),
+
   }),
 });
 
@@ -264,5 +381,8 @@ export const {
   // admin
   useGetAllUsersQuery,
   useGetAllAgentsQuery,
-  useUpdateUserStatusMutation,
+  useUpdateWalletTypeMutation,
+  useBlockAgentwalletMutation,
+  useActiveAgentwalletMutation,
+  useGetAllTransactionsQuery,
 } = api;

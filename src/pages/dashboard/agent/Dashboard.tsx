@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Wallet, DollarSign, Users, TrendingUp, Plus, Minus, ArrowUpRight } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, Legend } from 'recharts';
 import { useAppSelector } from '@/redux/hook';
-import { useGetAgentDashboardStatsQuery, useGetTransactionsQuery } from '@/redux/services/api';
+import { useGetAgentDashboardStatsQuery, useGetAllTransactionsQuery } from '@/redux/services/api';
 import { StatsCard } from '@/components/ui/StatsCard';
 import { Link } from 'react-router';
 
@@ -16,7 +16,7 @@ export default function AgentDashboard() {
   const { user } = useAppSelector((state) => state.auth);
   const { data, isLoading: statsLoading } = useGetAgentDashboardStatsQuery();
   const stats = data?.data
-  const { data:trans, isLoading: transactionsLoading } = useGetTransactionsQuery({ page: 1, limit: 5 });
+  const { data:trans, isLoading: transactionsLoading } = useGetAllTransactionsQuery({ page: 1, limit: 5 });
   const transactionsData = trans?.data?.transactions;
   // 
   console.log(transactionsData,stats);

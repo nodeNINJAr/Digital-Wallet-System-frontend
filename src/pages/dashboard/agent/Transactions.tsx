@@ -32,7 +32,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react';
-import { useGetTransactionsQuery } from '@/redux/services/api';
+import { useGetAllTransactionsQuery } from '@/redux/services/api';
 
 export default function AgentTransactionsPage() {
   const [page, setPage] = useState(1);
@@ -46,7 +46,7 @@ export default function AgentTransactionsPage() {
   const [appliedFilters, setAppliedFilters] = useState(filters);
 
   // 🔹 Pass filters + pagination to query
-  const { data, isLoading } = useGetTransactionsQuery({
+  const { data, isLoading } = useGetAllTransactionsQuery({
     page,
     limit: 10,
     search: appliedFilters.search,
