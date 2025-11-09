@@ -26,7 +26,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Search, Filter, Ban, CheckCircle, Eye } from 'lucide-react';
+import { Search, Filter, Ban, CheckCircle, Eye, Loader2 } from 'lucide-react';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { toast } from 'sonner';
@@ -107,7 +107,13 @@ export default function ManageUsersPage() {
     }
   };
 
-  if (isLoading) return <p>Loading users...</p>;
+ if(isLoading) return <ProtectedRoute allowedRoles={['admin']}>
+                        <DashboardLayout>
+                          <div className="flex items-center justify-center h-96">
+                            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                          </div>
+                        </DashboardLayout>
+                      </ProtectedRoute>
   if (isError) return <p>Error fetching users</p>;
 
   return (

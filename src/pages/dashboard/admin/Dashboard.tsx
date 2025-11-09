@@ -29,55 +29,23 @@ import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { useAppSelector } from '@/redux/hook';
 import { AdminTour } from '@/components/ui/AdminTour';
+import { useGetAdminDashboardStatsQuery, useGetRecentActivityQuery, useGetTransactionTrendsQuery, useGetTransactionTypesQuery } from '@/redux/services/api';
 
 
-
-// Mock data
-const statsData = {
-  totalUsers: 12847,
-  totalAgents: 324,
-  totalTransactions: 45823,
-  totalVolume: 3847291.50,
-  activeUsers: 8932,
-  pendingAgents: 12,
-  todayTransactions: 1247,
-  todayVolume: 147382.30,
-};
-
-const transactionTrends = [
-  { month: 'Jan', transactions: 3200, volume: 425000 },
-  { month: 'Feb', transactions: 3800, volume: 510000 },
-  { month: 'Mar', transactions: 4200, volume: 580000 },
-  { month: 'Apr', transactions: 3900, volume: 540000 },
-  { month: 'May', transactions: 4500, volume: 625000 },
-  { month: 'Jun', transactions: 5100, volume: 702000 },
-];
-
-const transactionTypes = [
-  { name: 'Send Money', value: 45, color: '#8b5cf6' },
-  { name: 'Deposit', value: 30, color: '#3b82f6' },
-  { name: 'Withdraw', value: 18, color: '#10b981' },
-  { name: 'Payment', value: 7, color: '#f59e0b' },
-];
-
-const recentActivity = [
-  { id: 1, user: 'John Smith', action: 'Registered', time: '2 minutes ago', status: 'success' },
-  { id: 2, user: 'Agent Sarah Lee', action: 'Cash-in $500', time: '5 minutes ago', status: 'success' },
-  { id: 3, user: 'Michael Brown', action: 'Sent $250', time: '8 minutes ago', status: 'success' },
-  { id: 4, user: 'Agent Tom Wilson', action: 'Request Approval', time: '12 minutes ago', status: 'pending' },
-  { id: 5, user: 'Emma Davis', action: 'Withdraw $150', time: '15 minutes ago', status: 'success' },
-];
 
 export default function AdminDashboard() {
-  const [loading, setLoading] = useState(true);
+
+ const {data, isLoading} = useGetAdminDashboardStatsQuery();
+ const {data:trans} = useGetTransactionTrendsQuery();
+  const {data:tTypes} = useGetTransactionTypesQuery();
+  const {data:RecentAc} = useGetRecentActivityQuery()
+ const statsData = data?.data;
+ const transactionTrends = trans?.data;
+ const transactionTypes = tTypes?.data;
+const  recentActivity = RecentAc?.data;
+
   const [showTour, setShowTour] = useState(false);
   const { mode } = useAppSelector((state) => state.theme);
-
-  useEffect(() => {
-    // Simulate loading
-    const timer = setTimeout(() => setLoading(false), 1000);
-    return () => clearTimeout(timer);
-  }, []);
 
   useEffect(() => {
     // Check if tour has been shown
@@ -91,7 +59,7 @@ export default function AdminDashboard() {
     setShowTour(true);
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <ProtectedRoute allowedRoles={['admin']}>
         <DashboardLayout>
@@ -237,7 +205,7 @@ export default function AdminDashboard() {
                       fill="#8884d8"
                       dataKey="value"
                     >
-                      {transactionTypes.map((entry, index) => (
+                      {transactionTypes && transactionTypes?.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={entry.color} />
                       ))}
                     </Pie>
@@ -261,7 +229,7 @@ export default function AdminDashboard() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {recentActivity.map((activity) => (
+                {recentActivity && recentActivity?.map((activity) => (
                   <div key={activity.id} className="flex items-center justify-between py-3 border-b last:border-0">
                     <div className="flex items-center gap-3">
                       <div className={`h-2 w-2 rounded-full ${activity.status === 'success' ? 'bg-green-500' : 'bg-amber-500'}`} />

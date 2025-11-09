@@ -207,6 +207,42 @@ export const api = baseApi.injectEndpoints({
 
 
     // ** ADMIN ENDPOINTS
+    //  dashboard
+    getAdminDashboardStats: builder.query<DashboardStats, void>({
+      query: () => ({
+        url: '/dashboard/stats/admin',
+        method: 'GET',
+      }),
+      providesTags: ['Stats'],
+    }),
+    
+    // 
+     getTransactionTrends: builder.query<DashboardStats, void>({
+      query: () => ({
+        url:"/dashboard/stats/admin/transaction-trends",
+         method: 'GET',
+      }),
+       providesTags: ['Stats'],
+    }),
+
+        // 
+     getTransactionTypes: builder.query<DashboardStats, void>({
+      query: () => ({
+        url:"/dashboard/stats/admin/transaction-types",
+         method: 'GET',
+      }),
+       providesTags: ['Stats'],
+    }),
+    //  
+
+    getRecentActivity: builder.query<DashboardStats, void>({
+      query: () => ({
+        url:"/dashboard/stats/admin/recent-activity",
+         method: 'GET',
+      }),
+       providesTags: ['Stats'],
+    }),
+
       getAllUsers: builder.query<{
           data: {
             enrichedUsers: Array<{
@@ -304,10 +340,6 @@ export const api = baseApi.injectEndpoints({
       invalidatesTags: ['User', 'Agent', 'Wallet'],
     }),
      
-
-
-
-
     // ## block wallet by admin
     blockAgentwallet: builder.mutation<User, { agentId: string }>({
       query: ({ agentId }) => ({
@@ -317,13 +349,13 @@ export const api = baseApi.injectEndpoints({
       invalidatesTags: ['User', 'Agent'],
     }),
     // 
-      ActiveAgentwallet: builder.mutation<User, { agentId: string }>({
-      query: ({ agentId }) => ({
-        url: `/wallets/agents/${agentId}/active`,
-        method: 'PATCH',
-      }),
-      invalidatesTags: ['User', 'Agent'],
+    ActiveAgentwallet: builder.mutation<User, { agentId: string }>({
+    query: ({ agentId }) => ({
+      url: `/wallets/agents/${agentId}/active`,
+      method: 'PATCH',
     }),
+    invalidatesTags: ['User', 'Agent'],
+  }),
 
 
   // **All TRANSACTIONS Admin
@@ -374,7 +406,12 @@ export const {
   useAgentCashInMutation,
   useGetAgentDashboardStatsQuery,
   useAgentWithdrawMutation,
-  // admin
+  // admin dsah
+  useGetAdminDashboardStatsQuery,
+  useGetTransactionTrendsQuery,
+  useGetTransactionTypesQuery,
+  useGetRecentActivityQuery,
+  // 
   useGetAllUsersQuery,
   useGetAllAgentsQuery,
   useApproveWalletTypeMutation,

@@ -26,7 +26,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Search, Filter, CheckCircle, Eye, Ban } from 'lucide-react';
+import { Search, Filter, CheckCircle, Eye, Ban, Loader2 } from 'lucide-react';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { toast } from 'sonner';
@@ -58,7 +58,6 @@ export default function ManageAgentsPage() {
   const agentsData = data?.data;
   const [blockAgentWallet] = useBlockAgentwalletMutation();
   const [activeAgentWallet] = useActiveAgentwalletMutation();
-  console.log(data);
   const agents = agentsData?.enrichedAgents || [];
   const totalPages = data?.data?.meta?.totalPages;
 
@@ -102,7 +101,15 @@ export default function ManageAgentsPage() {
     }
   };
 
-  if (isLoading) return <p>Loading agents...</p>;
+  if (isLoading) return  <ProtectedRoute allowedRoles={['admin']}>
+                        <DashboardLayout>
+                          <div className="flex items-center justify-center h-96">
+                            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                          </div>
+                        </DashboardLayout>
+                      </ProtectedRoute>
+
+
   if (isError) return <p>Error fetching agents</p>;
 
   return (

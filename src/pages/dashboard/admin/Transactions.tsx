@@ -51,7 +51,7 @@ export default function AdminTransactionsPage() {
     status: appliedFilters.status !== 'all' ? appliedFilters.status : undefined,
     sortOrder: appliedFilters.sortOrder as 'asc' | 'desc',
   });
-console.log(data);
+
   const transactions = data?.data?.transactions || [];
   const totalPages = data?.data?.meta?.totalPages || 1;
   const total = data?.data?.meta?.total || 0;
