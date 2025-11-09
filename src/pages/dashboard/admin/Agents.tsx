@@ -303,7 +303,7 @@ export default function ManageAgentsPage() {
               <DialogDescription>Are you sure you want to block this agent? They will no longer be able to access the platform.</DialogDescription>
             </DialogHeader>
             <DialogFooter>
-              <Button className='!text-white/60' variant="outline" onClick={() => setActionDialog(null)}>Cancel</Button>
+              <Button className='dark:!text-white/60' variant="outline" onClick={() => setActionDialog(null)}>Cancel</Button>
               <Button variant="destructive" onClick={handleSuspendAgent}>Block Agent</Button>
             </DialogFooter>
           </DialogContent>
@@ -316,8 +316,8 @@ export default function ManageAgentsPage() {
               <DialogDescription>Are you sure you want to activate this agent? They will regain access to the platform.</DialogDescription>
             </DialogHeader>
             <DialogFooter>
-              <Button variant="outline" className='!text-white/80 !border-2 !bg-red-500' onClick={() => setActionDialog(null)}>Cancel</Button>
-              <Button className='!text-white/80 !border-2' onClick={handleActivateAgent}>Activate Agent</Button>
+              <Button variant="outline" className='dark:!text-white/80 !border-2 !bg-red-500' onClick={() => setActionDialog(null)}>Cancel</Button>
+              <Button className='!text-white/80 bg-black dark:bg-white dark:!text-black dark:!border-2' onClick={handleActivateAgent}>Activate Agent</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>

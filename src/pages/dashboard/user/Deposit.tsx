@@ -155,7 +155,7 @@ export default function DepositMoneyPage() {
   );
   
   const filteredAgents = useMemo(() => 
-    agents.filter((agent) => {
+   agents.length > 0 && agents?.filter((agent) => {
       const query = searchQuery.toLowerCase();
       return (
         agent.name.toLowerCase().includes(query) ||
@@ -175,7 +175,6 @@ export default function DepositMoneyPage() {
 
   const onSubmit = async (data: DepositForm) => {
 
-  console.log(data);
 
     try {
       await depositMoney({
@@ -196,11 +195,11 @@ export default function DepositMoneyPage() {
   const renderAgentsList = () => {
     if (isLoadingAgents) return <LoadingState />;
     if (agentsError) return <ErrorState />;
-    if (filteredAgents.length === 0) return <EmptyState hasSearchQuery={!!searchQuery} />;
+    if (filteredAgents && filteredAgents?.length === 0) return <EmptyState hasSearchQuery={!!searchQuery} />;
 
     return (
       <div className="space-y-2 max-h-96 overflow-y-auto">
-        {filteredAgents.map((agent) => (
+        {filteredAgents && filteredAgents?.map((agent) => (
           <AgentCard
             key={agent.id}
             agent={agent}

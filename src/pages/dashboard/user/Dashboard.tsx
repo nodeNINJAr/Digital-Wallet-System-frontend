@@ -227,7 +227,7 @@ export default function UserDashboard() {
                 <CardTitle>Recent Transactions</CardTitle>
                 <CardDescription>Your latest financial activities</CardDescription>
               </div>
-              <Link to="/dashboard/user/transactions"><Button variant="outline" size="sm">View All</Button></Link>
+              <Link to="/dashboard/user/transactions"><Button variant="outline" size="sm" className='dark:!border-white/50 dark:!text-white/80'>View All</Button></Link>
             </CardHeader>
             <CardContent>
               {transactionsLoading ? (
