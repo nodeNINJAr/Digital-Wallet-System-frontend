@@ -1,11 +1,11 @@
 import { useAppSelector } from '@/redux/hook';
 import { Loader2 } from 'lucide-react';
 import { Navigate } from 'react-router';
-import type { UserRole } from '@/types';
+
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
-  allowedRoles?: UserRole[];
+  allowedRoles?: string[];
 }
 
 export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) {
