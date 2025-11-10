@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -36,6 +37,8 @@ import {
   useSuspendWalletTypeMutation,
 } from '@/redux/services/api';
 
+
+
 export default function ManageUsersPage() {
   const [page, setPage] = useState(1);
   const [filters, setFilters] = useState({
@@ -58,7 +61,7 @@ export default function ManageUsersPage() {
 
   const usersData = data?.data;
   const users = usersData || [];
-  const totalPages = data?.meta?.totalPages;
+  const totalPages = data?.meta?.totalPages ?? 0;
   const handleApplyFilters = () => {
     setAppliedFilters(filters);
     setPage(1);
@@ -218,7 +221,7 @@ export default function ManageUsersPage() {
                             >
                               <Eye className="h-4 w-4" />
                             </Button>
-                            {(user.agentStatus === 'pending' || user.agentStatus  === "APPROVED" ||user.agentStatus  === "suspended" || user.agentStatus  === "approved" || user.agentStatus === 'PENDING') ? (
+                            {(user.agentStatus === 'pending' ||user.agentStatus  === "suspended" || user.agentStatus  === "approved" || user.agentStatus === 'PENDING' || user.agentStatus  === "APPROVED") ? (
                                  <>
                               <Button
                                 variant="ghost"

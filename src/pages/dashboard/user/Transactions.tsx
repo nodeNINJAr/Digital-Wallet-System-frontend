@@ -56,7 +56,6 @@ export default function TransactionsPage() {
     dateTo: appliedFilters.dateTo,
   });
 
-console.log(data);
 
 
   const transactions = data?.data?.transactions || [];
@@ -301,8 +300,8 @@ console.log(data);
                             transaction.type
                           )}`}
                         >
-                          {transaction.type === 'send' ||
-                          transaction.type === 'withdraw'
+                          {transaction.type === 'SEND' ||
+                          transaction.type === 'WITHDRAW'
                             ? '-'
                             : '+'}
                           {formatCurrency(transaction.amount)}
@@ -313,9 +312,9 @@ console.log(data);
                         <TableCell>
                           <Badge
                             variant={
-                              transaction.tranStatus === 'completed'
+                              transaction.tranStatus === 'COMPLETED'
                                 ? 'default'
-                                : transaction.tranStatus === 'pending'
+                                : transaction.tranStatus === 'PENDING'
                                 ? 'secondary'
                                 : 'destructive'
                             }

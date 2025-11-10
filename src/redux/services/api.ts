@@ -1,26 +1,17 @@
-import type {
-  LoginRequest,
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
+import { baseApi } from '../baseApi';
+import type { LoginRequest,
   LoginResponse,
   RegisterRequest,
   User,
-  Transaction,
-  SendMoneyRequest,
-  AgentTransaction,
-  DashboardStats,
-} from '@/types';
-import { baseApi } from '../baseApi';
+  AgentsResponse, AgentUsersResponse, TransactionsResponse, UsersResponse, 
+  ITransaction,
+ } from '@/types/interface';
 
-interface Agent {
-  _id: string;
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  location?: string;
-  status: 'active' | 'inactive';
-  createdAt: string;
-  updatedAt: string;
-}
+
+
 
 interface GetAgentsQuery {
   search?: string;
@@ -32,20 +23,10 @@ interface GetAgentsQuery {
   sortOrder?: 'asc' | 'desc';
 }
 
-interface AgentsResponse {
-  agents: Agent[];
-  pagination: {
-    page: number;
-    limit: number;
-    total: number;
-    totalPages: number;
-  };
-}
-
-
 
 // ⚙️ Main API Slice
 export const api = baseApi.injectEndpoints({
+
   endpoints: (builder) => ({
 
     //** */ AUTH ENDPOINTS
@@ -116,11 +97,11 @@ export const api = baseApi.injectEndpoints({
           method: 'GET',
         };
       },
-      providesTags: ['Agents'],
+      providesTags: ['Agent'],
     }),
 
     //**
-    sendMoney: builder.mutation<Transaction, SendMoneyRequest>({
+    sendMoney: builder.mutation<ITransaction, any>({
       query: (body) => ({
         url: '/transactions/send',
         method: 'POST',
@@ -130,7 +111,7 @@ export const api = baseApi.injectEndpoints({
     }),
     
     // **
-    cashOut: builder.mutation<Transaction, AgentTransaction>({
+    cashOut: builder.mutation<ITransaction, any>({
       query: (body) => ({
         url: '/transactions/cash-out',
         method: 'POST',
@@ -140,7 +121,7 @@ export const api = baseApi.injectEndpoints({
     }),
 
     // **User DASHBOARD STATS
-    getDashboardStats: builder.query<DashboardStats, void>({
+    getDashboardStats: builder.query<any, void>({
       query: () => ({
         url: '/dashboard/stats/user',
         method: 'GET',
@@ -150,7 +131,7 @@ export const api = baseApi.injectEndpoints({
 
 
     //** AGENT CASH SERVICE **
-    getUserForAgent: builder.query<AgentsResponse, GetAgentsQuery | void>({
+    getUserForAgent: builder.query<AgentUsersResponse, GetAgentsQuery | void>({
       query: (params) => {
         const queryString = new URLSearchParams(
           Object.entries(params || {}).map(([key, value]) => [key, String(value)])
@@ -161,12 +142,12 @@ export const api = baseApi.injectEndpoints({
           method: 'GET',
         };
       },
-      providesTags: ['Agents'],
+      providesTags: ['Agent'],
     }),
    
 
 
-    agentCashIn: builder.mutation<Transaction, AgentTransaction>({
+    agentCashIn: builder.mutation<ITransaction, any>({
       query: (body) => ({
         url: '/transactions/cash-in',
         method: 'POST',
@@ -176,7 +157,7 @@ export const api = baseApi.injectEndpoints({
     }),
      
     // With draw **
-    agentWithdraw: builder.mutation<Transaction, AgentTransaction>({
+    agentWithdraw: builder.mutation<ITransaction, any>({
       query: (body) => ({
         url: '/transactions/withdraw',
         method: 'POST',
@@ -186,7 +167,7 @@ export const api = baseApi.injectEndpoints({
     }),
 
     //  
-    getAgentDashboardStats: builder.query<DashboardStats, void>({
+    getAgentDashboardStats: builder.query<any, void>({
       query: () => ({
         url: '/dashboard/stats/agent',
         method: 'GET',
@@ -195,8 +176,7 @@ export const api = baseApi.injectEndpoints({
     }),
 
     // ** TRANSACTIONS for both user and agent
-    getTransactions: builder.query<
-      { transactions: Transaction[]; meta: { total: number; totalPages: number; page: number; limit: number } },
+    getTransactions: builder.query<TransactionsResponse,
       { page?: number; limit?: number; type?: string; status?: string; dateFrom?: string; dateTo?: string; search?: string }
     >({
       query: ({ page = 1, limit = 10, type, status, dateFrom, dateTo, search }) => {
@@ -221,7 +201,7 @@ export const api = baseApi.injectEndpoints({
 
     // ** ADMIN ENDPOINTS
     //  dashboard
-    getAdminDashboardStats: builder.query<DashboardStats, void>({
+    getAdminDashboardStats: builder.query<any, void>({
       query: () => ({
         url: '/dashboard/stats/admin',
         method: 'GET',
@@ -230,7 +210,7 @@ export const api = baseApi.injectEndpoints({
     }),
     
     // 
-     getTransactionTrends: builder.query<DashboardStats, void>({
+     getTransactionTrends: builder.query<any, void>({
       query: () => ({
         url:"/dashboard/stats/admin/transaction-trends",
          method: 'GET',
@@ -239,7 +219,7 @@ export const api = baseApi.injectEndpoints({
     }),
 
         // 
-     getTransactionTypes: builder.query<DashboardStats, void>({
+     getTransactionTypes: builder.query<any, void>({
       query: () => ({
         url:"/dashboard/stats/admin/transaction-types",
          method: 'GET',
@@ -248,7 +228,7 @@ export const api = baseApi.injectEndpoints({
     }),
     //  
 
-    getRecentActivity: builder.query<DashboardStats, void>({
+    getRecentActivity: builder.query<any, void>({
       query: () => ({
         url:"/dashboard/stats/admin/recent-activity",
          method: 'GET',
@@ -257,23 +237,9 @@ export const api = baseApi.injectEndpoints({
     }),
 
     // 
-    getAllUsers: builder.query<{
-          data: {
-            enrichedUsers: Array<{
-              id: string;
-              name: string;
-              email: string;
-              phone: string;
-              balance: number;
-              status: string; // This will be agentStatus from user
-              joinedDate: string;
-              transactions: number;
-            }>;
-            total: number;
-          };
-        },
-        { page?: number; limit?: number; searchTerm?: string; agentStatus?: string }
-      >({
+    getAllUsers: builder.query<UsersResponse, { page?: number; limit?: number; searchTerm?: string; agentStatus?: string }>
+    
+    ({
         query: ({ page = 1, limit = 25, searchTerm = "", agentStatus } = {}) => ({
           url: `/user/all`,
           method: "GET",
@@ -288,37 +254,19 @@ export const api = baseApi.injectEndpoints({
       }),
   
     // Updated API endpoint
-    getAllAgents: builder.query<{
-        data: {
-          enrichedAgents: Array<{
-            id: string;
-            name: string;
-            email: string;
-            phone: string;
-            commission: number;
-            status: string;
-            joinedDate: string;
-            transactions: number;
-          }>;
-          total: number;
-        };
-        meta: {
-          page: number;
-          limit: number;
-          total: number;
-          totalPages: number;
-        };
-      }, {
+    getAllAgents: builder.query<AgentsResponse, {
         page?: number;
         limit?: number;
         searchTerm?: string;
         status?: string;
+        sortOrder?:string;
       }>({
-        query: ({ page = 1, limit = 10, searchTerm = "", status }: {
+        query: ({ page = 1, limit = 10, searchTerm = "", status, }: {
           page?: number;
           limit?: number;
           searchTerm?: string;
           status?: string;
+          sortOrder?:string;
         } = {}) => ({
           url: '/user/agents',
           method: 'GET',
@@ -334,7 +282,7 @@ export const api = baseApi.injectEndpoints({
 
 
     //** */ updaate wallet type by admin
-   approveWalletType: builder.mutation<User, { userId: string }
+   approveWalletType: builder.mutation<any, { userId: string }
     >({
       query: ({ userId }) => ({
         url: `/wallets/agents/${userId}/approve`,
@@ -344,7 +292,7 @@ export const api = baseApi.injectEndpoints({
     }),
        
     // **
-       suspendWalletType: builder.mutation<User, { userId: string }
+       suspendWalletType: builder.mutation<any, { userId: string }
     >({
       query: ({ userId }) => ({
         url: `/wallets/agents/${userId}/suspend`,
@@ -354,7 +302,7 @@ export const api = baseApi.injectEndpoints({
     }),
      
     // ## block wallet by admin
-    blockAgentwallet: builder.mutation<User, { agentId: string }>({
+    blockAgentwallet: builder.mutation<any, { agentId: string }>({
       query: ({ agentId }) => ({
         url: `/wallets/agents/${agentId}/block`,
         method: 'PATCH',
@@ -362,7 +310,7 @@ export const api = baseApi.injectEndpoints({
       invalidatesTags: ['User', 'Agent'],
     }),
     // 
-    ActiveAgentwallet: builder.mutation<User, { agentId: string }>({
+    ActiveAgentwallet: builder.mutation<any, { agentId: string }>({
     query: ({ agentId }) => ({
       url: `/wallets/agents/${agentId}/active`,
       method: 'PATCH',
@@ -372,9 +320,8 @@ export const api = baseApi.injectEndpoints({
 
 
   // **All TRANSACTIONS Admin
-    getAllTransactions: builder.query<
-      { transactions: Transaction[]; meta: { total: number; totalPages: number; page: number; limit: number } },
-      { page?: number; limit?: number; type?: string; status?: string; dateFrom?: string; dateTo?: string; search?: string }
+    getAllTransactions: builder.query<TransactionsResponse,
+      { page?: number; limit?: number; type?: string; status?: string; dateFrom?: string; dateTo?: string; search?: string; sortOrder:string}
     >({
       query: ({ page = 1, limit = 10, type, status, dateFrom, dateTo, search }) => {
         const params = new URLSearchParams();

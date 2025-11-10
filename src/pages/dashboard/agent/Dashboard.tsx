@@ -20,7 +20,7 @@ export default function AgentDashboard() {
   const { user } = useAppSelector((state) => state.auth);
   const { data, isLoading: statsLoading } = useGetAgentDashboardStatsQuery();
   const stats = data?.data
-  const { data:trans, isLoading: transactionsLoading } = useGetAllTransactionsQuery({ page: 1, limit: 5 });
+  const { data:trans, isLoading: transactionsLoading } = useGetAllTransactionsQuery({ page: 1, limit: 10, sortOrder: 'desc' });
   const transactionsData = trans?.data?.transactions;
   // 
   const formatCurrency = (amount: number) => {
@@ -76,8 +76,6 @@ export default function AgentDashboard() {
   const handleStartTour = () => {
     setShowTour(true);
   };
-
-
 
 
   // 
@@ -235,7 +233,7 @@ export default function AgentDashboard() {
                 <div className="space-y-3">
                   {transactionsData?.slice(0, 5).map((transaction) => (
                     <div
-                      key={transaction.id}
+                      key={transaction._id}
                       className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors"
                     >
                       <div className="flex items-center gap-3">
@@ -249,10 +247,10 @@ export default function AgentDashboard() {
                       </div>
                       <div className="text-right">
                         <p className={`font-semibold ${getTransactionColor(transaction.type)}`}>
-                          {formatCurrency(transaction.amount)}
+                          {formatCurrency(transaction.amount/100)}
                         </p>
-                        <Badge variant={transaction.status === 'completed' ? 'default' : 'secondary'} className="text-xs">
-                          {transaction.status}
+                        <Badge variant={transaction.tranStatus === 'COMPLETED' ? 'default' : 'secondary'} className="text-xs">
+                          {transaction.tranStatus}
                         </Badge>
                       </div>
                     </div>

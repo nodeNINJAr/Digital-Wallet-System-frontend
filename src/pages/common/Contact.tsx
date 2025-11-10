@@ -24,7 +24,8 @@ import {
 
 const Contact = () => {
   // const [submitContact, { isLoading }] = useSubmitContactMutation();
-  const [isLoading, setIsLoading] = useState(false)
+  //const [isLoading, setIsLoading] = useState(false)
+  const isLoading = true;
   // const { toast } = useToast()
   const [formData, setFormData] = useState({
     name: '',

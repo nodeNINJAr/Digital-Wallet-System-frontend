@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router';
 import { useForm } from 'react-hook-form';
@@ -145,14 +146,15 @@ export default function DepositMoneyPage() {
       amount: 0,
     },
   });
-  console.log(agentsData)
+
   const amount = watch('amount') || 0;
 
   // -------------------- Computed Values --------------------
-  const agents: Agent[] = useMemo(() => 
-    agentsData?.data?.agents || agentsData || [], 
+  const agents: Agent[] = useMemo(
+    () => agentsData?.data?.enrichedAgents || [],
     [agentsData]
   );
+
   
   const filteredAgents = useMemo(() => 
    agents.length > 0 && agents?.filter((agent) => {
@@ -245,8 +247,8 @@ export default function DepositMoneyPage() {
                 {renderAgentsList()}
 
                 {/* Error Message */}
-                {errors.email && (
-                  <p className="text-sm text-destructive">{errors.email.message}</p>
+                {errors.agentId && (
+                  <p className="text-sm text-destructive">{errors.agentId.message}</p>
                 )}
               </CardContent>
             </Card>

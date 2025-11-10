@@ -24,14 +24,23 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
+  type PieLabelRenderProps,
 } from 'recharts';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { useAppSelector } from '@/redux/hook';
 import { AdminTour } from '@/components/ui/AdminTour';
 import { useGetAdminDashboardStatsQuery, useGetRecentActivityQuery, useGetTransactionTrendsQuery, useGetTransactionTypesQuery } from '@/redux/services/api';
+import type { Activity } from '@/types/interface';
 
 
+
+
+type TransactionType = {
+  name: string;
+  value: number;
+  color: string;
+};
 
 export default function AdminDashboard() {
 
@@ -200,12 +209,12 @@ const  recentActivity = RecentAc?.data;
                       cx="50%"
                       cy="50%"
                       labelLine={false}
-                      label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                      label={({ name, percent}:PieLabelRenderProps) => `${name}: ${(Number(percent) * 100).toFixed(0)}%`}
                       outerRadius={100}
                       fill="#8884d8"
                       dataKey="value"
                     >
-                      {transactionTypes && transactionTypes?.map((entry, index) => (
+                      {transactionTypes && transactionTypes?.map((entry:TransactionType, index:number) => (
                         <Cell key={`cell-${index}`} fill={entry.color} />
                       ))}
                     </Pie>
@@ -229,7 +238,7 @@ const  recentActivity = RecentAc?.data;
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {recentActivity && recentActivity?.map((activity) => (
+                {recentActivity && recentActivity?.map((activity:Activity) => (
                   <div key={activity.id} className="flex items-center justify-between py-3 border-b last:border-0">
                     <div className="flex items-center gap-3">
                       <div className={`h-2 w-2 rounded-full ${activity.status === 'success' ? 'bg-green-500' : 'bg-amber-500'}`} />

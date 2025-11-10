@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Wallet, ArrowUpRight, ArrowDownLeft, TrendingUp, Send, Plus, Minus, PlayCircle } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend, type PieLabelRenderProps } from 'recharts';
 import { useAppSelector } from '@/redux/hook';
 import { StatsCard } from '@/components/ui/StatsCard';
 import { Link } from 'react-router';
@@ -60,7 +60,9 @@ export default function UserDashboard() {
       const date = new Date(t.createdAt);
       const monthIndex = date.getMonth();
       const type = t.type as IType;
-      if ([IType.SEND, IType.WITHDRAW, IType.CASH_OUT].includes(type)) data[monthIndex].SEND += t.amount;
+      if (([IType.SEND, IType.WITHDRAW, IType.CASH_OUT] as IType[]).includes(type)) {
+       data[monthIndex].SEND += t.amount;
+         }
       else data[monthIndex].CASH_OUT += t.amount;
     });
 
@@ -74,6 +76,7 @@ export default function UserDashboard() {
       [IType.CASH_IN]: '#22c55e',
       [IType.CASH_OUT]: '#f59e0b',
       [IType.BONUS]: '#a855f7',
+      [IType.WITHDRAW]: ''
     };
 
     return types.map((type) => {
@@ -84,7 +87,7 @@ export default function UserDashboard() {
     });
   }, [transactionsData]);
    
-     
+
         // 
       const [showTour, setShowTour] = useState(false);
       // const { mode } = useAppSelector((state) => state.theme);
@@ -99,8 +102,6 @@ export default function UserDashboard() {
      const handleStartTour = () => {
        setShowTour(true);
      };
-
-
 
 
   // 
@@ -204,7 +205,7 @@ export default function UserDashboard() {
                       cx="50%"
                       cy="50%"
                       labelLine={false}
-                      label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                      label={({ name, percent }:PieLabelRenderProps) => `${name} ${(Number(percent) * 100).toFixed(0)}%`}
                       outerRadius={80}
                       fill="#8884d8"
                       dataKey="value"
@@ -253,8 +254,9 @@ export default function UserDashboard() {
                       </div>
                       <div className="text-right">
                         <p className={`font-semibold ${getTransactionColor(t.type)}`}>
-                          {[IType.SEND, IType.WITHDRAW, IType.CASH_OUT].includes(t.type) ? '-' : '+'}{formatCurrency(t.amount / 100)}
-                        </p>
+                            {([IType.SEND, IType.WITHDRAW, IType.CASH_OUT] as IType[]).includes(t.type) ? '-' : '+'}
+                            {formatCurrency(t.amount / 100)}
+                          </p>
                         <Badge variant={t.tranStatus === IStatus.COMPLETED ? 'default' : 'secondary'} className="text-xs">
                           {t.tranStatus}
                         </Badge>

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Link, useNavigate } from "react-router";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -70,10 +71,13 @@ export function Login() {
       
       // Fixed: Use result.data.user.role (not result.user.role)
       navigate(getRoleRoute(result?.data?.user?.role));
-    } catch (error: any) {
-      toast.error(error?.data?.message || "Demo login failed.");
-      console.error(error);
-    }
+    } catch (error: unknown) {
+          const message = error instanceof Error 
+            ? error.message 
+            : (error as any)?.data?.message || "Demo login failed.";
+          toast.error(message);
+          console.error(error);
+        }
   };
 
   return (

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
 import { useForm } from 'react-hook-form';
@@ -50,10 +51,9 @@ export default function CashServicePage() {
   const { data, isLoading: usersLoading } = useGetUserForAgentQuery();
   const [cashIn, { isLoading: isCashingIn }] = useAgentCashInMutation();
   const [withdrawMoney, { isLoading: isWithdrawing }] = useAgentWithdrawMutation();
-   console.log(data)
   const users = data?.data?.users;
   const isProcessing = isCashingIn || isWithdrawing;
-
+  // console.log(data);
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: { email: '', amount: '', description: '' },
@@ -165,12 +165,12 @@ export default function CashServicePage() {
                       ) : filteredUsers.length > 0 ? (
                         filteredUsers.map((user) => (
                           <button
-                            key={user.id}
+                            key={user._id}
                             type="button"
                             onClick={() => handleUserSelect(user)}
                             disabled={isProcessing}
                             className={`w-full text-left p-4 rounded-lg border-2 transition-all hover:border-primary/50 disabled:opacity-50 disabled:cursor-not-allowed ${
-                              selectedUser?.id === user.id
+                              selectedUser?.id === user._id
                                 ? 'border-primary bg-primary/5'
                                 : 'border-border'
                             }`}

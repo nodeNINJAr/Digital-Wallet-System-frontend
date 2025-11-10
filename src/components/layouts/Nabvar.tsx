@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router'
 import { Button } from '@/components/ui/button'
@@ -6,7 +7,6 @@ import { Separator } from '@/components/ui/separator'
 import { Menu, Wallet, ChevronDown, LogOut } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ModeToggle } from './Mode-toggle'
-import { DropdownMenuItem } from '@radix-ui/react-dropdown-menu'
 import { useAppDispatch, useAppSelector } from '@/redux/hook'
 import { useLogoutMutation } from '@/redux/services/api'
 import { clearUser } from '@/redux/slice/authSlice'

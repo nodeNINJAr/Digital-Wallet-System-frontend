@@ -27,7 +27,6 @@ import {
   Download,
   ArrowUpRight,
   ArrowDownLeft,
-  Plus,
   Minus,
   ChevronLeft,
   ChevronRight,
@@ -54,6 +53,7 @@ export default function AgentTransactionsPage() {
     status: appliedFilters.status,
     dateFrom: appliedFilters.dateFrom,
     dateTo: appliedFilters.dateTo,
+    sortOrder: 'desc',
   });
 
   const transactions = data?.data?.transactions || [];
@@ -101,6 +101,10 @@ export default function AgentTransactionsPage() {
     }
   };
 
+
+
+
+  // 
   return (
     <ProtectedRoute allowedRoles={['agent']}>
       <DashboardLayout>
@@ -205,7 +209,7 @@ export default function AgentTransactionsPage() {
 
               <div className="flex gap-2 mt-4">
                 <Button
-                  className='!text-white/70 !border-white/30'
+                  className='dark:!text-white/70 dark:!border-white/30'
                   variant="outline"
                   size="sm"
                   onClick={() => {
@@ -217,7 +221,7 @@ export default function AgentTransactionsPage() {
                   Apply Filters
                 </Button>
                 <Button
-                  className='!text-white/70 !border-white/30'
+                  className='dark:!text-white/70 dark:!border-white/30'
                   variant="outline"
                   size="sm"
                   onClick={() => {
@@ -294,8 +298,8 @@ export default function AgentTransactionsPage() {
                             transaction.type
                           )}`}
                         >
-                          {transaction.type === 'send' ||
-                          transaction.type === 'withdraw'
+                          {transaction.type === 'SEND' ||
+                          transaction.type === 'WITHDRAW'
                             ? '-'
                             : '+'}
                           {formatCurrency(transaction.amount)}
@@ -306,9 +310,9 @@ export default function AgentTransactionsPage() {
                         <TableCell>
                           <Badge
                             variant={
-                              transaction.tranStatus === 'completed'
+                              transaction.tranStatus === 'COMPLETED'
                                 ? 'default'
-                                : transaction.tranStatus === 'pending'
+                                : transaction.tranStatus === 'PENDING'
                                 ? 'secondary'
                                 : 'destructive'
                             }

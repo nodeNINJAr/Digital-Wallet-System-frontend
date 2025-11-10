@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router';
 import { Button } from '@/components/ui/button';
@@ -19,8 +20,6 @@ import {
   Settings,
   LogOut,
   Menu,
-  Moon,
-  Sun,
   Users,
   DollarSign,
   FileText,
@@ -28,7 +27,6 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAppDispatch, useAppSelector } from '@/redux/hook';
-import { toggleTheme } from '@/redux/slice/themeSlice';
 import { clearUser } from '@/redux/slice/authSlice';
 import { useLogoutMutation } from '@/redux/services/api';
 import { ModeToggle } from './layouts/Mode-toggle';
@@ -58,16 +56,11 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     }
  }
 
-    // 
-  const handleThemeToggle = () => {
-    dispatch(toggleTheme());
-  };
-
   const getUserInitials = () => {
       if (!user?.name) return 'U';
       return user.name
         .split(' ')
-        .map((n) => n[0])
+        .map((n: any[]) => n[0])
         .join('')
         .toUpperCase()
         .slice(0, 2);
